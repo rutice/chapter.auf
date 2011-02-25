@@ -13,9 +13,9 @@
 
 #include "neaacdec.h"
 #ifdef _DEBUG
-#pragma comment(lib, "libfaadD.lib")
+//#pragma comment(lib, "libfaadD.lib")
 #else
-#pragma comment(lib, "libfaad.lib")
+//#pragma comment(lib, "libfaad.lib")
 #endif
 
 //[ru]計測クラス
@@ -156,7 +156,7 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	//ここまで
 }
 
-void CfgDlg::AuotSaveCheck() {
+void CfgDlg::AutoSaveCheck() {
 	m_autosave = IsDlgButtonChecked(m_fp->hwnd,IDC_CHECK1);
 	m_exfunc->ini_save_int(m_fp,"autosave",m_autosave);
 	//[ru]保存
@@ -789,6 +789,21 @@ void CfgDlg::Load() {
 		strcpy_s(m_strTitle[m_numChapter],STRLEN,str + 14);
 		m_Frame[m_numChapter] = frame;
 		m_SCPos[m_numChapter] = -1;
+
+		char *scPos = strstr(m_strTitle[m_numChapter], "SCPos:");
+		int scFrame;
+		if (scPos) {
+			scFrame = atoi(scPos + strlen("SCPos:"));
+			m_SCPos[m_numChapter] = scFrame - frame;
+		}
+
+		if (IsDlgButtonChecked(m_fp->hwnd, IDC_SCMARK)){
+			FRAME_STATUS frameStatus;
+			m_exfunc->get_frame_status(m_editp, scFrame, &frameStatus);
+			frameStatus.edit_flag |= EDIT_FRAME_EDIT_FLAG_MARKFRAME;
+			m_exfunc->set_frame_status(m_editp, scFrame, &frameStatus);
+		}
+
 		m_numChapter++;
 		if(m_numChapter > 100) break;
 	}
@@ -1099,6 +1114,10 @@ void CfgDlg::DetectMute() {
 					mark = "★";
 				} else if (pos > 0 && abs(start_fr - m_Frame[pos-1] - 30*30) < 30) {
 					mark = "★★";
+				} else if (pos > 0 && abs(start_fr - m_Frame[pos-1] - 30*45) < 30) {
+					mark = "★★★";
+				} else if (pos > 0 && abs(start_fr - m_Frame[pos-1] - 30*60) < 30) {
+					mark = "★★★★";
 				}
 				
 				if (pos && (start_fr - m_Frame[pos-1] <= 1)) {
@@ -1109,6 +1128,7 @@ void CfgDlg::DetectMute() {
 
 					if (IsDlgButtonChecked(m_fp->hwnd, IDC_PRECHECK)){
 						m_SCPos[pos] = GetSCPos(start_fr, mute_fr);
+						sprintf_s(m_strTitle[pos], STRLEN, "%02dフレーム %s SCPos:%d", mute_fr, mark, m_SCPos[pos]);
 						if (IsDlgButtonChecked(m_fp->hwnd, IDC_SCMARK)){
 							int target_frame = start_fr + m_SCPos[pos];
 							FRAME_STATUS frameStatus;

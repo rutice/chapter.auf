@@ -169,7 +169,7 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 				//‚±‚±‚Ü‚Å
 				case IDC_SCMARK:
 				case IDC_PRECHECK:
-					g_config.AuotSaveCheck();
+					g_config.AutoSaveCheck();
 					break;
 				//[ru]’Ç‰Á
 				case IDC_BUDETECT:

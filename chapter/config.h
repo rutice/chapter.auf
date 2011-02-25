@@ -61,7 +61,7 @@ public:
 	void Save();
 	void AutoSave();
 	void Load();
-	void AuotSaveCheck();
+	void AutoSaveCheck();
 	int GetSCPos(int moveto, int frames);
 
 	//[ru]ä÷êîí«â¡
