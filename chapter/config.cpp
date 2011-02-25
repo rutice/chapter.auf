@@ -12,7 +12,11 @@
 #include "mylib.h"
 
 #include "neaacdec.h"
+#ifdef _DEBUG
+#pragma comment(lib, "libfaadD.lib")
+#else
 #pragma comment(lib, "libfaad.lib")
+#endif
 
 //[ru]計測クラス
 //#define CHECKSPEED
@@ -108,6 +112,12 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	CreateWindow("BUTTON","SC位置",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,215,73,22,hwnd,(HMENU)IDC_CHECKSC,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_CHECKSC,WM_SETFONT,(WPARAM)hfont,0);
 	//--ここまで
+	CreateWindow("BUTTON","全SC検出",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,240,90,22,hwnd,(HMENU)IDC_PRECHECK,hinst,0);
+	SendDlgItemMessage(hwnd,IDC_PRECHECK,WM_SETFONT,(WPARAM)hfont,0);
+	CreateWindow("BUTTON","mark付与",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,265,90,22,hwnd,(HMENU)IDC_SCMARK,hinst,0);
+	SendDlgItemMessage(hwnd,IDC_SCMARK,WM_SETFONT,(WPARAM)hfont,0);
+
+
 	CreateWindow("BUTTON","削除",WS_CHILD|WS_VISIBLE,480,346,73,22,hwnd,(HMENU)IDC_BUDEL,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUDEL,WM_SETFONT,(WPARAM)hfont,0);
 	CreateWindow("BUTTON","追加",WS_CHILD|WS_VISIBLE,480,377,73,22,hwnd,(HMENU)IDC_BUADD,hinst,0);
@@ -141,6 +151,8 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	SetDlgItemText(hwnd, IDC_EDITMUTE, str);
 
 	CheckDlgButton(hwnd, IDC_CHECKSC, m_exfunc->ini_load_int(fp,"sceneChange", 1));
+	CheckDlgButton(hwnd, IDC_PRECHECK, m_exfunc->ini_load_int(fp,"PrecheckSC", 0));
+	CheckDlgButton(hwnd, IDC_SCMARK, m_exfunc->ini_load_int(fp,"SCMark", 0));
 	//ここまで
 }
 
@@ -150,6 +162,8 @@ void CfgDlg::AuotSaveCheck() {
 	//[ru]保存
 	m_exfunc->ini_save_int(m_fp,"sceneChange", IsDlgButtonChecked(m_fp->hwnd, IDC_CHECKSC));
 	//ここまで
+	m_exfunc->ini_save_int(m_fp,"PrecheckSC", IsDlgButtonChecked(m_fp->hwnd, IDC_PRECHECK));
+	m_exfunc->ini_save_int(m_fp,"SCMark", IsDlgButtonChecked(m_fp->hwnd, IDC_SCMARK));
 }
 
 void CfgDlg::SetFps(int rate,int scale) {
@@ -230,11 +244,13 @@ void CfgDlg::AddList() {
 	for(int n = m_numChapter;n > ins;n--) {
 		m_Frame[n] = m_Frame[n-1];
 		strcpy_s(m_strTitle[n],STRLEN,m_strTitle[n-1]);
+		m_SCPos[n] = m_SCPos[n-1];
 	}
 	m_numChapter++;
 
 	strcpy_s(m_strTitle[ins],STRLEN,str);
 	m_Frame[ins] = m_frame;
+	m_SCPos[ins] = -1;
 	ShowList();
 	AddHis();
 }
@@ -252,6 +268,7 @@ void CfgDlg::DelList() {
 	for(int n = sel;n < m_numChapter;n++) {
 		m_Frame[n] = m_Frame[n+1];
 		strcpy_s(m_strTitle[n],STRLEN,m_strTitle[n+1]);
+		m_SCPos[n] = m_SCPos[n+1];
 	}
 	ShowList();
 }
@@ -336,7 +353,7 @@ void shift_to_eight_bit_sse( PIXEL_YC* ycp, unsigned char* luma, int w, int max_
 }
 #define FRAME_PICTURE	1
 #define FIELD_PICTURE	2
-int mvec(unsigned char* current_pix,unsigned char* bef_pix,int* vx,int* vy,int lx,int ly,int threshold,int pict_struct,int SC_level);
+int mvec(unsigned char* current_pix,unsigned char* bef_pix,int lx,int ly,int threshold,int pict_struct);
 //ここまで
 
 //[ru]輝度の平均だけで判定してみるテスト
@@ -382,6 +399,212 @@ BOOL searchJump(HWND hWnd, LPARAM lParam) {
 }
 //ここまで
 
+class CThreadProc
+{
+protected:
+	HANDLE hThread;
+	HANDLE hNotify[2];
+	volatile bool bTerminate;
+
+	//処理用パラメータ
+	unsigned char* pix1;
+	unsigned char* pix0;
+	int w, fi_w, h;
+	volatile PIXEL_YC* yc;
+	int movtion_vector;
+public:
+	CThreadProc(){
+		hThread = NULL;
+		hNotify[0] = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+		hNotify[1] = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+		bTerminate = false;
+	}
+	~CThreadProc(){
+		::CloseHandle(hThread);
+		::CloseHandle(hNotify[0]);
+		::CloseHandle(hNotify[1]);
+	}
+	void SetParam(unsigned char* p0_, unsigned char* p1_, int w_, int fi_w_, int h_){
+		pix0 = p0_;
+		pix1 = p1_;
+		w = w_;
+		fi_w = fi_w_;
+		h = h_;
+	}
+	void SetInputImage(PIXEL_YC* pImage){
+		yc = pImage;
+	}
+
+	void Run(){
+		shift_to_eight_bit_sse((PIXEL_YC*)yc, pix1, w, fi_w, h);
+		movtion_vector = mvec( pix1, pix0, w, h, (100-0)*(100/FIELD_PICTURE), FIELD_PICTURE);
+		
+		unsigned char *tmp = pix0;
+		pix0 = pix1;
+		pix1 = tmp;
+	}
+	static DWORD WINAPI ThreadProc(void* pParam){
+		CThreadProc* pThis = (CThreadProc*)pParam;
+		::WaitForSingleObject(pThis->hNotify[1], INFINITE);
+		while(!pThis->bTerminate){
+			pThis->Run();
+			::SetEvent(pThis->hNotify[0]);
+			::WaitForSingleObject(pThis->hNotify[1], INFINITE);
+		}
+		return 0;
+	}
+	void StartThread(){
+		DWORD threadID;
+		hThread = ::CreateThread(NULL, 0, ThreadProc, (void*)this, 0, &threadID);
+	}
+	void ResumeThread(){
+		::SetEvent(hNotify[1]);
+	}
+	void WaitThread(){
+		::WaitForSingleObject(hNotify[0], INFINITE);
+	}
+	void Terminate(){
+		bTerminate = true;
+		ResumeThread();
+		::WaitForSingleObject(hThread, INFINITE);
+	}
+	int GetMovtionVector(){
+		return movtion_vector;
+	}
+};
+
+int CfgDlg::GetSCPos(int moveto, int frames)
+{
+	FILE_INFO fi;
+	if(!m_editp || !m_exfunc->get_source_file_info(m_editp, &fi, 0)){
+		return 0;
+	}
+
+	char str[500]; // debug
+	int w = fi.w & 0xFFF0;
+	int h = fi.h & 0xFFF0;
+
+	int max_motion = -1;
+	int max_motion_frame = 0;
+
+#if 1
+	// 動きベクトルが最大値のフレームを検出
+	unsigned char* pix1 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした現フレームの輝度が代入される
+	unsigned char* pix0 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした前フレームの輝度が代入される
+
+	//計測タイマ
+	QPC totalQPC;
+
+	totalQPC.start();
+
+	PIXEL_YC *yc0 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, max(moveto-1, 0), 0);
+	shift_to_eight_bit_sse(yc0, pix0, w, fi.w, h);
+	PIXEL_YC *yc1 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, moveto, 0);
+
+	CThreadProc thread;
+	thread.SetParam(pix0, pix1, w, fi.w, h);
+	thread.SetInputImage(yc1);
+	thread.StartThread();
+
+	int checkFrame = min(frames+5,200); 
+	for (int i=0; i<checkFrame; i++) {
+		thread.ResumeThread();
+		PIXEL_YC *yc1 = NULL;
+		if((i+1) <checkFrame){
+			yc1 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, moveto+i+1, 0);
+		}
+		thread.WaitThread();
+		thread.SetInputImage(yc1);
+
+		int movtion_vector = thread.GetMovtionVector();
+		if (movtion_vector > max_motion) {
+			max_motion = movtion_vector;
+			max_motion_frame = i;
+		}
+	}
+	thread.Terminate();
+	_aligned_free(pix1);
+	_aligned_free(pix0);
+
+	totalQPC.stop();
+#ifdef CHECKSPEED
+	sprintf_s(str, "total: %.03f", totalQPC.get());
+	MessageBox(NULL, str, NULL, 0);
+#endif
+
+#else
+#if 1
+	// 動きベクトルが最大値のフレームを検出
+	unsigned char* pix1 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした現フレームの輝度が代入される
+	unsigned char* pix0 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした前フレームの輝度が代入される
+
+	//計測タイマ
+	QPC totalQPC;
+	QPC sourceQPC;
+	QPC eightQPC;
+	QPC mvecQPC;
+
+	totalQPC.start();
+
+	sourceQPC.start();
+	PIXEL_YC *yc0 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, max(moveto-1, 0), 0);
+	sourceQPC.stop();
+	eightQPC.start();
+	shift_to_eight_bit_sse(yc0, pix0, w, fi.w, h);
+	eightQPC.stop();
+	for (int i=0; i<min(frames+5,200); i++) {
+		sourceQPC.start();
+		PIXEL_YC *yc1 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, moveto+i, 0);
+		sourceQPC.stop();
+		eightQPC.start();
+		shift_to_eight_bit_sse(yc1, pix1, w, fi.w, h);
+		eightQPC.stop();
+		mvecQPC.start();
+		int movtion_vector = mvec( pix1, pix0, w, h, (100-0)*(100/FIELD_PICTURE), FIELD_PICTURE);
+		mvecQPC.stop();
+		yc0 = yc1;
+		if (movtion_vector > max_motion) {
+			max_motion = movtion_vector;
+			max_motion_frame = i;
+		}
+		unsigned char *tmp = pix0;
+		pix0 = pix1;
+		pix1 = tmp;
+		//memcpy(pix0, pix1, w*h);
+	}
+	_aligned_free(pix1);
+	_aligned_free(pix0);
+
+	totalQPC.stop();
+#ifdef CHECKSPEED
+	sprintf_s(str, "total: %.03f, read: %.03f, shift: %.03f, mvec: %.03f", totalQPC.get(), sourceQPC.get(), eightQPC.get(), mvecQPC.get());
+	MessageBox(NULL, str, NULL, 0);
+#endif
+#else
+	// 輝度の変化が最大のフレームを検出
+	PIXEL_YC *yc0 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, max(moveto-1, 0), 0);
+	int before_ave = yc0 != NULL ? ave_y(yc0, fi.w, fi.h) : 0;
+	for (int i=0; i<min(frames+5,200); i++) {
+		PIXEL_YC *yc1 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, moveto+i, 0);
+		if (yc1 == NULL)
+			continue;
+		int now_ave = ave_y(yc1, fi.w, fi.h);
+		int movtion_vector = abs(now_ave - before_ave);
+		before_ave = now_ave;
+
+		if (movtion_vector > max_motion) {
+			max_motion = movtion_vector;
+			max_motion_frame = i;
+		}
+	}
+#endif
+#endif
+	//sprintf_s(str, 500, "%.03f", (double)( clock() - t ) / CLOCKS_PER_SEC);
+	//MessageBox(NULL, str, NULL, 0);
+
+	return max_motion_frame;
+}
+
 void CfgDlg::Seek() {
 	LRESULT sel;
 
@@ -390,93 +613,19 @@ void CfgDlg::Seek() {
 	if(m_Frame[sel] == m_frame) return;
 
 	//[ru] シーンチェンジ検出
-	FILE_INFO fi;
-	if (!m_editp || !m_exfunc->get_source_file_info(m_editp, &fi, 0))
-		return;
-
 	int frames = atoi(m_strTitle[sel]);
 	int moveto = m_Frame[sel];
-	char str[500]; // debug
-	int w = fi.w & 0xFFF0;
-	int h = fi.h & 0xFFF0;
 
 	if (IsDlgButtonChecked(m_fp->hwnd, IDC_CHECKSC) && frames > 0) {	
-		//clock_t t = clock();
-
-		int max_motion = -1;
-		int max_motion_frame = moveto;
-#if 1
-		// 動きベクトルが最大値のフレームを検出
-		unsigned char* pix1 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした現フレームの輝度が代入される
-		unsigned char* pix0 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした前フレームの輝度が代入される
-		int* vx = new int[(w/16)*(h/16)*2];	//動きベクトルx軸
-		int* vy = new int[(w/16)*(h/16)*2];	//動きベクトルy軸
-
-		//計測タイマ
-		QPC sourceQPC;
-		QPC eightQPC;
-		QPC mvecQPC;
-
-		sourceQPC.start();
-		PIXEL_YC *yc0 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, max(moveto-1, 0), 0);
-		sourceQPC.stop();
-		eightQPC.start();
-		shift_to_eight_bit_sse(yc0, pix0, w, fi.w, h);
-		eightQPC.stop();
-		for (int i=0; i<min(frames+5,200); i++) {
-			sourceQPC.start();
-			PIXEL_YC *yc1 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, moveto+i, 0);
-			sourceQPC.stop();
-			eightQPC.start();
-			shift_to_eight_bit_sse(yc1, pix1, w, fi.w, h);
-			eightQPC.stop();
-			mvecQPC.start();
-			int movtion_vector = mvec( pix1, pix0, vx, vy, w, h, (100-0)*(100/FIELD_PICTURE), FIELD_PICTURE, 20);
-			mvecQPC.stop();
-			yc0 = yc1;
-			if (movtion_vector > max_motion) {
-				max_motion = movtion_vector;
-				max_motion_frame = moveto + i;
-			}
-			unsigned char *tmp = pix0;
-			pix0 = pix1;
-			pix1 = tmp;
-			//memcpy(pix0, pix1, w*h);
+		int max_motion_frame = m_SCPos[sel];
+		if(max_motion_frame == -1){
+			max_motion_frame = GetSCPos(moveto, frames);
 		}
-		_aligned_free(pix1);
-		_aligned_free(pix0);
-		delete [] vx;
-		delete [] vy;
-#ifdef CHECKSPEED
-		sprintf_s(str, "read: %.03f, shift: %.03f, mvec: %.03f", sourceQPC.get(), eightQPC.get(), mvecQPC.get());
-		MessageBox(NULL, str, NULL, 0);
-#endif
-#else
-		// 輝度の変化が最大のフレームを検出
-		PIXEL_YC *yc0 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, max(moveto-1, 0), 0);
-		int before_ave = yc0 != NULL ? ave_y(yc0, fi.w, fi.h) : 0;
-		for (int i=0; i<min(frames+5,200); i++) {
-			PIXEL_YC *yc1 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, moveto+i, 0);
-			if (yc1 == NULL)
-				continue;
-			int now_ave = ave_y(yc1, fi.w, fi.h);
-			int movtion_vector = abs(now_ave - before_ave);
-			before_ave = now_ave;
-
-			if (movtion_vector > max_motion) {
-				max_motion = movtion_vector;
-				max_motion_frame = moveto + i;
-			}
-		}
-#endif
-
-		//sprintf_s(str, 500, "%.03f", (double)( clock() - t ) / CLOCKS_PER_SEC);
-		//MessageBox(NULL, str, NULL, 0);
+		max_motion_frame += moveto;
 		m_exfunc->set_frame(m_editp, max_motion_frame);
 		EnumWindows((WNDENUMPROC)searchJump, (LPARAM)m_exfunc->get_frame_n(m_editp));
 		return;
 	}
-end:
 	//ここまで
 	m_exfunc->set_frame(m_editp,m_Frame[sel]);
 	SetDlgItemText(m_hDlg,IDC_EDNAME,m_strTitle[sel]);
@@ -635,6 +784,7 @@ void CfgDlg::Load() {
 		for(int i = 0;i < STRLEN;i++) if(str[i] == '\n' || str[i] == '\r') {str[i] = 0; break;}
 		strcpy_s(m_strTitle[m_numChapter],STRLEN,str + 14);
 		m_Frame[m_numChapter] = frame;
+		m_SCPos[m_numChapter] = -1;
 		m_numChapter++;
 		if(m_numChapter > 100) break;
 	}
@@ -753,10 +903,12 @@ void CfgDlg::DetectMute() {
 
 	int n = m_exfunc->get_frame_n(m_editp);
 
+	/*
 	sprintf_s(str, STRLEN, "音量(%d/%d)以下の部分が %d フレーム以上連続している部分を探します。\n現在のチャプター情報は全て削除されます！", mute, 1 << 15, seri);
 	if (MessageBox(m_hDlg, str, "無音検索", MB_OKCANCEL) != IDOK) {
 		return ;
 	}
+	*/
 
 	// チャプター個数
 	int pos = 0;
@@ -772,6 +924,7 @@ void CfgDlg::DetectMute() {
 	int mute_fr = 0;	// 無音フレーム数
 	bool isFAW = true;	// FAW使用かどうか（最初のフレームで検出）
 	
+
 	// フレームごとに音声を解析
 	int skip = 0;
 	for (int i=0; i<n; ++i) {
@@ -788,6 +941,7 @@ void CfgDlg::DetectMute() {
 			else
 				sprintf_s(m_strTitle[pos], STRLEN, "編集点 (間隔：%d)", diff);
 			m_Frame[pos] = i;
+			m_SCPos[pos] = -1;
 			++pos;
 			mute_fr = 0;
 			start_fr = i;
@@ -866,6 +1020,20 @@ void CfgDlg::DetectMute() {
 				} else {
 					sprintf_s(m_strTitle[pos], STRLEN, "%02dフレーム %s", mute_fr, mark);
 					m_Frame[pos] = start_fr;
+
+					if (IsDlgButtonChecked(m_fp->hwnd, IDC_PRECHECK)){
+						m_SCPos[pos] = GetSCPos(start_fr, mute_fr);
+						if (IsDlgButtonChecked(m_fp->hwnd, IDC_SCMARK)){
+							int target_frame = start_fr + m_SCPos[pos];
+							FRAME_STATUS frameStatus;
+							m_exfunc->get_frame_status(m_editp, target_frame, &frameStatus);
+							frameStatus.edit_flag |= EDIT_FRAME_EDIT_FLAG_MARKFRAME;
+							m_exfunc->set_frame_status(m_editp, target_frame, &frameStatus);
+						}
+					}else{
+						m_SCPos[pos] = -1;
+					}
+
 					++pos;
 				}
 			}
@@ -877,7 +1045,44 @@ void CfgDlg::DetectMute() {
 			break;
 		}
 	}
+#ifdef CHECKSPEED
+	sprintf_s(str, "mute: %.03f", time.get());
+	MessageBox(NULL, str, NULL, 0);
+#endif
+
 	m_numChapter = pos;
 	ShowList();
 }
 //ここまで
+
+void CfgDlg::UpdateFramePos()
+{
+	int stFrame, edFrame;
+	m_exfunc->get_select_frame(m_editp, &stFrame, &edFrame);
+	int diff = edFrame - stFrame + 1;
+
+	int orgNum = m_numChapter;
+	int orgFrame[100];
+	char orgTitle[100][STRLEN];
+	int orgSCPos[100];
+	memcpy(orgFrame, m_Frame, sizeof(int)*100);
+	memcpy(orgTitle, m_strTitle,  sizeof(char)*100*STRLEN);
+	memcpy(orgSCPos, m_SCPos, sizeof(int)*100);
+
+	m_numChapter = 0;
+	int pos = 0;
+	for(int n=0; n<orgNum; n++){
+		if(orgFrame[n] >= stFrame && orgFrame[n] <= edFrame){
+			continue;
+		}
+		m_Frame[pos] = orgFrame[n];
+		if(orgFrame[n] > edFrame){
+			m_Frame[pos] -= diff;
+		}
+		memcpy(m_strTitle[pos], orgTitle[n], sizeof(char)*STRLEN);
+		m_SCPos[pos] = orgSCPos[n];
+		pos++;
+	}
+	m_numChapter = pos;
+	ShowList();
+}

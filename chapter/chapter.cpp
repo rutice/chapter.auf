@@ -25,7 +25,7 @@ FILTER_DLL filter = {
 	NULL,NULL,	// reserved
 	NULL,	// void *ex_data_ptr
 	NULL,	// int ex_data_size
-	"チャプター編集 ver0.6 by ぽむ + 無音＆シーンチェンジ検索機能 by ru",	// TCHAR *information
+	"チャプター編集 ver0.6 by ぽむ + 無音＆シーンチェンジ検索機能 by ru + 削除追従 by fe",	// TCHAR *information
 	func_save_start,	// (*func_save_start)
 	NULL,	// (*func_save_end)
 	NULL,	// EXFUNC *exfunc;
@@ -45,6 +45,7 @@ FILTER_DLL filter = {
 CfgDlg	g_config;
 PrfDat	g_prf;
 HHOOK	g_hHook;
+HHOOK	g_hMessageHook;
 HWND	g_hwnd;
 int		g_keyhook;
 
@@ -97,6 +98,21 @@ LRESULT CALLBACK KeyboardProc(int nCode,WPARAM wParam,LPARAM lParam)
 	return CallNextHookEx(g_hHook,nCode,wParam,lParam);
 }
 
+LRESULT CALLBACK WindowMessageProc(int nCode, WPARAM wp, LPARAM lp)
+{
+	if(nCode == HC_ACTION){
+		MSG* msg = (MSG*)lp;
+		//フレーム削除が呼ばれたら処理
+		if(wp == PM_REMOVE && msg->message == WM_COMMAND && LOWORD(msg->wParam) == 0x13ED){
+			g_config.UpdateFramePos();
+		}
+	}
+
+	return CallNextHookEx(g_hMessageHook, nCode, wp, lp);
+}
+
+
+
 BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp,FILTER *fp)
 {
 	FILE_INFO fip;
@@ -107,8 +123,10 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 			g_hwnd = hwnd;
 			g_hHook = SetWindowsHookEx(WH_KEYBOARD,KeyboardProc,0,GetCurrentThreadId());
 			g_keyhook = 0;
+			g_hMessageHook = SetWindowsHookEx(WH_GETMESSAGE,WindowMessageProc,0,GetCurrentThreadId());
 			break;
 		case WM_FILTER_EXIT:
+			UnhookWindowsHookEx(g_hMessageHook);
 			UnhookWindowsHookEx(g_hHook);
 			break;
 		case WM_FILTER_UPDATE:	//編集操作
@@ -149,6 +167,8 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 				//[ru]ついでに
 				case IDC_CHECKSC:
 				//ここまで
+				case IDC_SCMARK:
+				case IDC_PRECHECK:
 					g_config.AuotSaveCheck();
 					break;
 				//[ru]追加
@@ -172,6 +192,7 @@ BOOL func_project_save( FILTER *fp,void *editp,void *data,int *size ) {
 	g_prf.m_numChapter = g_config.m_numChapter;
 	CopyMemory(g_prf.m_Frame,g_config.m_Frame,sizeof(int)*100);
 	CopyMemory(g_prf.m_strTitle,g_config.m_strTitle,sizeof(char)*100*STRLEN);
+	CopyMemory(g_prf.m_SCPos,g_config.m_SCPos,sizeof(int)*100);
 	CopyMemory(data,&g_prf,*size);
 	return TRUE;
 }
@@ -185,6 +206,7 @@ BOOL func_project_load( FILTER *fp,void *editp,void *data,int size ) {
 		g_config.m_numChapter = g_prf.m_numChapter;
 		CopyMemory(g_config.m_Frame,g_prf.m_Frame,sizeof(int)*100);
 		CopyMemory(g_config.m_strTitle,g_prf.m_strTitle,sizeof(char)*100*STRLEN);
+		CopyMemory(g_config.m_SCPos,g_prf.m_SCPos,sizeof(int)*100);
 		g_config.ShowList();
 	}
 	return TRUE;

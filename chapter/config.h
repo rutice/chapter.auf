@@ -18,6 +18,7 @@ typedef struct
 	int m_numChapter;
 	int m_Frame[100];
 	char m_strTitle[100][STRLEN];
+	int m_SCPos[100];
 } PrfDat;
 
 typedef struct {
@@ -47,6 +48,7 @@ public:
 	int m_numChapter;
 	int m_Frame[100];
 	char m_strTitle[100][STRLEN];
+	int m_SCPos[100];
 
 	void ShowList();
 	void Init(HWND hwnd,void *editp,FILTER *fp);
@@ -60,8 +62,11 @@ public:
 	void AutoSave();
 	void Load();
 	void AuotSaveCheck();
+	int GetSCPos(int moveto, int frames);
 
 	//[ru]ä÷êîí«â¡
 	void DetectMute();
 	//Ç±Ç±Ç‹Ç≈
+
+	void UpdateFramePos();
 };

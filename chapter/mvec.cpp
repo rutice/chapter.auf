@@ -26,9 +26,8 @@ int dist( unsigned char *p1, unsigned char *p2, int lx, int distlim, int block_h
 //---------------------------------------------------------------------
 //		グローバル変数
 //---------------------------------------------------------------------
-int	block_hight,
-	lx2,
-	Bef_motion_vector_total = -1;
+int	block_hight, lx2;
+
 int x_plus[] = {1,1,1,2,1,1,1,1,
 				1,1,1,2,1,1,1,1,
 				1,1,1,2,1,1,1,1,
@@ -46,20 +45,15 @@ int dxplus[] = {16,16,16,32,16,16,16, 0,
 int tree=0, full=0;
 int mvec(unsigned char* current_pix, 	//現フレームの輝度。8ビット。
 		  unsigned char* bef_pix,		//前フレームの輝度。8ビット。
-		  int* vx,						//x方向の動きベクトルが代入される。
-		  int* vy,						//y方向の動きベクトルが代入される。
 		  int lx,						//画像の横幅
 		  int ly,						//画像の縦幅
 		  int threshold,				//検索精度。(100-fp->track[1])*50 …… 50は適当な値。
-		  int pict_struct,				//"1"ならフレーム処理、"2"ならフィールド処理
-		  int SC_level)					//シーンチェンジ閾値
+		  int pict_struct)				//"1"ならフレーム処理、"2"ならフィールド処理
 {
 	int x, y;
 	unsigned char *p1, *p2;
 	int motion_vector_total = 0;
-	//int scene_change_level = (Bef_motion_vector_total == -1) ? INT_MAX : Bef_motion_vector_total+lx*ly/SC_level;
-	int min;
-	int temp_vx, temp_vy;
+
 //関数を呼び出す毎に計算せずにすむようグローバル変数とする
 	lx2 = lx*pict_struct;
 	block_hight = 16/pict_struct;
@@ -72,23 +66,17 @@ int mvec(unsigned char* current_pix, 	//現フレームの輝度。8ビット。
 			p2 = bef_pix + y*lx;
 			for(x=0;x<lx;x+=16)	//全体横軸
 			{
-				*vx=0; *vy=0;
-				min = dist( p1, p2, lx2, INT_MAX, block_hight );
-				if( threshold < (min = tree_search( p1, p2, lx, ly, vx, vy, x, y, min, pict_struct)) && (*vx!=0 || *vy!=0) )
-					if( threshold < (min = tree_search( p1, &p2[*vy * lx + *vx], lx, ly, vx, vy, x+*vx, y+*vy, min, pict_struct)) )
-						if( threshold < (min = tree_search( p1, &p2[*vy * lx + *vx], lx, ly, vx, vy, x+*vx, y+*vy, min, pict_struct)) )
+				int vx=0, vy=0;
+				int min = dist( p1, p2, lx2, INT_MAX, block_hight );
+				if( threshold < (min = tree_search( p1, p2, lx, ly, &vx, &vy, x, y, min, pict_struct)) && (vx!=0 || vy!=0) )
+					if( threshold < (min = tree_search( p1, &p2[vy * lx + vx], lx, ly, &vx, &vy, x+vx, y+vy, min, pict_struct)) )
+						if( threshold < (min = tree_search( p1, &p2[vy * lx + vx], lx, ly, &vx, &vy, x+vx, y+vy, min, pict_struct)) )
 //3回のツリー探索でもフレーム間の絶対値差が大きければ全探索をおこなう
-							full_search( p1, &p2[*vy * lx + *vx], lx, ly, vx, vy, x+*vx, y+*vy, min, pict_struct, max(abs(*vx),abs(*vy))*2 );
+							full_search( p1, &p2[vy * lx + vx], lx, ly, &vx, &vy, x+vx, y+vy, min, pict_struct, max(abs(vx),abs(vy))*2 );
 
 //動きベクトルの合計がシーンチェンジレベルを超えていたら、シーンチェンジと判定してTRUEを返して終了
-				motion_vector_total += abs(*vx)+abs(*vy);
-				//if( motion_vector_total > scene_change_level){
-				//	Bef_motion_vector_total = -1;
-				//	return TRUE;
-				//}
+				motion_vector_total += abs(vx)+abs(vy);
 
-				vx++;
-				vy++;
 				p1+=16;
 				p2+=16;
 			}
@@ -98,8 +86,6 @@ int mvec(unsigned char* current_pix, 	//現フレームの輝度。8ビット。
 	/*char str[500];
 	sprintf_s(str, 500, "tree:%d, full:%d", tree, full);
 	MessageBox(NULL, str, 0, 0);*/
-
-	Bef_motion_vector_total = motion_vector_total;
 
 	return motion_vector_total;
 }

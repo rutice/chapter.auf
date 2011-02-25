@@ -24,6 +24,8 @@
 #define IDC_STATICa                     1031
 #define IDC_STATICb                     1032
 //‚±‚±‚Ü‚Å
+#define IDC_PRECHECK                    1024
+#define IDC_SCMARK                      1025
 
 // Next default values for new objects
 // 
