@@ -3,7 +3,7 @@
 //---------------------------------------------------------------------
 #include <windows.h>
 #include <commctrl.h>
-#include <stdio.h>
+#include <cstdio>
 #include <process.h>
 #include <time.h>	//[ru]追加
 #include <emmintrin.h> //[ru] 追加
@@ -87,7 +87,7 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	SendMessage(hwnd,WM_SETFONT,(WPARAM)hfont,0);
 	CreateWindowEx(WS_EX_CLIENTEDGE,"LISTBOX","",WS_CHILD|WS_VISIBLE|LBS_NOTIFY|WS_VSCROLL|WS_TABSTOP,14,12,448,335,hwnd,(HMENU)IDC_LIST1,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_LIST1,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE|ES_READONLY,48,348,89,20,hwnd,(HMENU)IDC_EDTIME,hinst,0);
+	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE|ES_READONLY,48,348,190,20,hwnd,(HMENU)IDC_EDTIME,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDTIME,WM_SETFONT,(WPARAM)hfont,0);
 	CreateWindowEx(WS_EX_CLIENTEDGE,"COMBOBOX","",WS_CHILD|WS_VISIBLE|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP,48,380,417,120,hwnd,(HMENU)IDC_EDNAME,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDNAME,WM_SETFONT,(WPARAM)hfont2,0);
@@ -174,12 +174,12 @@ void CfgDlg::SetFps(int rate,int scale) {
 	ShowList();
 }
 
-void CfgDlg::ShowList() {
+void CfgDlg::ShowList(int nSelect) {
 	LONGLONG t,h,m;
 	double s;
 	char str[STRLEN];
 
-	while(SendDlgItemMessage(m_hDlg,IDC_LIST1,LB_GETCOUNT,0,0)) {SendDlgItemMessage(m_hDlg,IDC_LIST1,LB_DELETESTRING,0,0);}
+	SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_RESETCONTENT, 0L, 0L);
 
 	for(int n = 0;n < m_numChapter;n++) {
 		t = (LONGLONG)m_Frame[n] * 10000000 * m_scale / m_rate;
@@ -188,6 +188,11 @@ void CfgDlg::ShowList() {
 		s = (t - h * 36000000000 - m * 600000000) / 10000000.0;
 		sprintf_s(str,STRLEN,"%02d %06d [%02d:%02d:%06.3f] %s\n",n + 1,m_Frame[n],(int)h,(int)m,s,m_strTitle[n]);
 		SendDlgItemMessage(m_hDlg,IDC_LIST1,LB_ADDSTRING,0L,(LPARAM)str);
+	}
+
+	if (nSelect != -1) {
+		SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, (WPARAM)min(m_numChapter, nSelect + 8), 0L);
+		SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, (WPARAM)nSelect, 0L);
 	}
 }
 
@@ -323,7 +328,6 @@ void shift_to_eight_bit_sse( PIXEL_YC* ycp, unsigned char* luma, int w, int max_
 			y1 = _mm_insert_epi16(y1, (ycp+5)->y, 5);
 			y1 = _mm_insert_epi16(y1, (ycp+6)->y, 6);
 			y1 = _mm_insert_epi16(y1, (ycp+7)->y, 7);
-
 
 			//__m128i cmp =_mm_cmpgt_epi16(y, m4095);
 			//y = _mm_or_si128(y, cmp);
@@ -530,6 +534,7 @@ int CfgDlg::GetSCPos(int moveto, int frames)
 #ifdef CHECKSPEED
 	sprintf_s(str, "total: %.03f", totalQPC.get());
 	MessageBox(NULL, str, NULL, 0);
+	//OutputDebugString(str);
 #endif
 
 #else
@@ -607,7 +612,6 @@ int CfgDlg::GetSCPos(int moveto, int frames)
 
 void CfgDlg::Seek() {
 	LRESULT sel;
-
 	sel = SendDlgItemMessage(m_hDlg,IDC_LIST1,LB_GETCURSEL,0,0);
 	if(sel == LB_ERR) return;
 	if(m_Frame[sel] == m_frame) return;
@@ -645,7 +649,7 @@ void CfgDlg::SetFrame(int frame) {
 	h = t / 36000000000;
 	m = (t - h * 36000000000) / 600000000;
 	s = (t - h * 36000000000 - m * 600000000) / 10000000.0;
-	sprintf_s(m_strTime,STRLEN,"%02d:%02d:%06.3f",(int)h,(int)m,s);
+	sprintf_s(m_strTime,STRLEN,"%02d:%02d:%06.3f / %06d frame", (int)h, (int)m, s, frame);
 	SetDlgItemText(m_hDlg,IDC_EDTIME,m_strTime);
 	m_frame = frame;
 }
@@ -792,6 +796,89 @@ void CfgDlg::Load() {
 	ShowList();
 }
 
+// FAWチェックと、FAWPreview.aufを使っての1フレームデコード
+class CFAW {
+	bool is_half;
+
+	bool load_failed;
+	HMODULE _h;
+
+	typedef int (__stdcall *ExtractDecode1FAW)(const short *in, int samples, short *out, bool is_half);
+	ExtractDecode1FAW _ExtractDecode1FAW;
+
+	bool load() {
+		if (_ExtractDecode1FAW == NULL && load_failed == false) {
+			_h = LoadLibrary("FAWPreview.auf");
+			if (_h == NULL) {
+				load_failed = true;
+				return false;
+			}
+			_ExtractDecode1FAW = (ExtractDecode1FAW)GetProcAddress(_h, "ExtractDecode1FAW");
+			if (_ExtractDecode1FAW == NULL) {
+				FreeLibrary(_h);
+				_h = NULL;
+				load_failed = true;
+				return false;
+			}
+			return true;
+		}
+		return true;
+	}
+public:
+	CFAW() : _h(NULL), _ExtractDecode1FAW(NULL), load_failed(false), is_half(false) { }
+	
+	~CFAW() {
+		if (_h) {
+			FreeLibrary(_h);
+		}
+	}
+
+	bool isLoadFailed(void) {
+		return load_failed;
+	}
+
+	// FAW開始地点を探す。1/2なFAWが見つかれば、以降はそれしか探さない。
+	// in: get_audio()で得た音声データ
+	// samples: get_audio() * ch数
+	// 戻り値：FAW開始位置のインデックス。なければ-1
+	int findFAW(short *in, int samples) {
+		// search for 72 F8 1F 4E 07 01 00 00
+		static unsigned char faw11[] = {0x72, 0xF8, 0x1F, 0x4E, 0x07, 0x01, 0x00, 0x00};
+		if (is_half == false) {
+			for (int j=0; j<samples - 30; ++j) {
+				if (memcmp(in+j, faw11, sizeof(faw11)) == 0) {
+					return j;
+				}
+			}
+		}
+
+		// search for 00 F2 00 78 00 9F 00 CE 00 87 00 81 00 80 00 80
+		static unsigned char faw12[] = {0x00, 0xF2, 0x00, 0x78, 0x00, 0x9F, 0x00, 0xCE,
+										0x00, 0x87, 0x00, 0x81, 0x00, 0x80, 0x00, 0x80};
+
+		for (int j=0; j<samples - 30; ++j) {
+			if (memcmp(in+j, faw12, sizeof(faw12)) == 0) {
+				is_half = true;
+				return j;
+			}
+		}
+
+		return -1;
+	}
+
+	// FAWPreview.aufを使ってFAWデータ1つを抽出＆デコードする
+	// in: FAW開始位置のポインタ。findFAWに渡したin + findFAWの戻り値
+	// samples: inにあるデータのshort換算でのサイズ
+	// out: デコード結果を入れるバッファ(16bit, 2chで1024サンプル)
+	//     （1024sample * 2byte * 2ch = 4096バイト必要）
+	int decodeFAW(const short *in, int samples, short *out){
+		if (load()) {
+			return _ExtractDecode1FAW(in, samples, out, is_half);
+		}
+		return 0;
+	}
+};
+
 class CMute {
 private:
 	short _buf[48000];
@@ -809,16 +896,7 @@ public:
 		return true;
 	}
 
-	// FAWが見つかればその位置、なければ-1
-	static int findFAW(short *in, int samples) {
-		// search for 72 F8 1F 4E 07 01 00 00
-		for (int j=0; j<samples - 30; ++j)
-			if ((unsigned short)in[j] == (unsigned short)0xF872)
-					if (in[j+1] == 0x4E1F && in[j+2] == 0x0107 && in[j+3] == 0x0000)
-						return j;			
-		return -1;
-	}
-
+	// 使ってません
 	static int decodeFAW(byte *buffer, int rest, short *buf) {
 			int nbyte = 0;
 
@@ -923,14 +1001,15 @@ void CfgDlg::DetectMute() {
 	int start_fr = 0;	// 無音の開始フレーム
 	int mute_fr = 0;	// 無音フレーム数
 	bool isFAW = true;	// FAW使用かどうか（最初のフレームで検出）
-	
+	CFAW cfaw;
 
 	// フレームごとに音声を解析
 	int skip = 0;
 	for (int i=0; i<n; ++i) {
 		// 音声とフレームステータス取得
-		if (!m_exfunc->get_frame_status(m_editp, i, &fs))
+		if (!m_exfunc->get_frame_status(m_editp, i, &fs)) {
 			continue;
+		}
 
 		// 編集点を検出
 		int diff = fs.video - bvid;
@@ -958,10 +1037,11 @@ void CfgDlg::DetectMute() {
 			int naudio = m_exfunc->get_audio(m_editp, i + seri - 1, buf);
 			if (naudio && isFAW) {
 				naudio *= fip.audio_ch;
-				int j = CMute::findFAW(buf, naudio);
+				int j = cfaw.findFAW(buf, naudio);
 				if (j != -1) {
-					byte *buffer = (byte*)(&buf[j+4]);
-					naudio = CMute::decodeFAW(buffer, 2*(naudio - j - 4), buf);
+					//byte *buffer = (byte*)(&buf[j+4]);
+					//naudio = CMute::decodeFAW(buffer, 2*(naudio - j - 4), buf);
+					naudio = cfaw.decodeFAW(buf + j, naudio - j, buf);
 				}
 			}
 			if (naudio) {
@@ -982,11 +1062,17 @@ void CfgDlg::DetectMute() {
 		// FAWをデコード
 		if (isFAW) {
 			bool isDecoded = false;
-			int j = CMute::findFAW(buf, naudio);
+			int j = cfaw.findFAW(buf, naudio);
 			if (j != -1) {
-				byte *buffer = (byte*)(&buf[j+4]);
-				naudio = CMute::decodeFAW(buffer, 2*(naudio - j - 4), buf);
+				//byte *buffer = (byte*)(&buf[j+4]);
+				//naudio = CMute::decodeFAW(buffer, 2*(naudio - j - 4), buf);
+				naudio = cfaw.decodeFAW(buf+j, naudio-j, buf);
 				isDecoded = naudio != 0;
+
+				if (cfaw.isLoadFailed()) {
+					MessageBox(this->m_fp->hwnd, "FAWをデコードするのに 11/02/06以降のFAWPreview.auf（FAWぷれびゅ～） が必要です。", "エラー", MB_OK);
+					return ;
+				}
 			}
 			if (isDecoded == false) {
 				// 最初のフレームでAAC部分が無ければFAWモードを抜ける
@@ -1045,11 +1131,7 @@ void CfgDlg::DetectMute() {
 			break;
 		}
 	}
-#ifdef CHECKSPEED
-	sprintf_s(str, "mute: %.03f", time.get());
-	MessageBox(NULL, str, NULL, 0);
-#endif
-
+	
 	m_numChapter = pos;
 	ShowList();
 }
@@ -1061,6 +1143,9 @@ void CfgDlg::UpdateFramePos()
 	m_exfunc->get_select_frame(m_editp, &stFrame, &edFrame);
 	int diff = edFrame - stFrame + 1;
 
+	int nShowing, toSelect = -1;
+	nShowing = m_exfunc->get_frame(m_editp);
+
 	int orgNum = m_numChapter;
 	int orgFrame[100];
 	char orgTitle[100][STRLEN];
@@ -1070,19 +1155,30 @@ void CfgDlg::UpdateFramePos()
 	memcpy(orgSCPos, m_SCPos, sizeof(int)*100);
 
 	m_numChapter = 0;
-	int pos = 0;
-	for(int n=0; n<orgNum; n++){
+	int pos = 0; // 新しい位置
+	int bCutInserted = false;
+	for(int n=0; n<orgNum && pos < 100; n++){
 		if(orgFrame[n] >= stFrame && orgFrame[n] <= edFrame){
+			if (bCutInserted == false) {
+				bCutInserted = true;
+				sprintf_s(m_strTitle[pos], STRLEN, "編集点 (間隔：%d)", diff);
+				pos++;
+			}
 			continue;
 		}
+		// 選択位置の決定
+		if (nShowing > orgFrame[n]) {
+			toSelect = n;
+		}
+
 		m_Frame[pos] = orgFrame[n];
 		if(orgFrame[n] > edFrame){
 			m_Frame[pos] -= diff;
 		}
-		memcpy(m_strTitle[pos], orgTitle[n], sizeof(char)*STRLEN);
+		strcpy_s(m_strTitle[pos], STRLEN, orgTitle[n]);
 		m_SCPos[pos] = orgSCPos[n];
 		pos++;
 	}
 	m_numChapter = pos;
-	ShowList();
+	ShowList(toSelect);
 }

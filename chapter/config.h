@@ -50,7 +50,7 @@ public:
 	char m_strTitle[100][STRLEN];
 	int m_SCPos[100];
 
-	void ShowList();
+	void ShowList(int defSelect = -1);
 	void Init(HWND hwnd,void *editp,FILTER *fp);
 	void SetFrame(int frame);
 	void SetFps(int rate,int scale);
