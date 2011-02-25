@@ -1,0 +1,6 @@
+LIBRARY chapter.auf
+
+EXPORTS
+	GetFilterTable @1
+	GetFilterTableYUY2 @2
+
