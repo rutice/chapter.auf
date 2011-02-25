@@ -16,6 +16,15 @@
 #define IDC_CHECK1                      1015
 #define IDC_STATIC2                     1014
 
+//[ru]’Ç‰Á
+#define IDC_BUDETECT                    1020
+#define IDC_EDITSERI                    1021
+#define IDC_EDITMUTE                    1022
+#define IDC_CHECKSC                     1023
+#define IDC_STATICa                     1031
+#define IDC_STATICb                     1032
+//‚±‚±‚Ü‚Å
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

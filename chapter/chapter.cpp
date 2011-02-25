@@ -12,7 +12,7 @@
 //---------------------------------------------------------------------
 FILTER_DLL filter = {
 	FILTER_FLAG_ALWAYS_ACTIVE|FILTER_FLAG_MAIN_MESSAGE|FILTER_FLAG_WINDOW_SIZE|FILTER_FLAG_DISP_FILTER|FILTER_FLAG_EX_INFORMATION,	// int flag
-	567,335,	// int x,y
+	567,435,	// int x,y
 	"チャプター編集",	// TCHAR *name
 	NULL,NULL,NULL,	// int track_n, TCHAR **track_name, int *track_default
 	NULL,NULL,	// int *track_s, *track_e
@@ -25,7 +25,7 @@ FILTER_DLL filter = {
 	NULL,NULL,	// reserved
 	NULL,	// void *ex_data_ptr
 	NULL,	// int ex_data_size
-	"チャプター編集 ver0.6 by ぽむ",	// TCHAR *information
+	"チャプター編集 ver0.6 by ぽむ + 無音＆シーンチェンジ検索機能 by ru",	// TCHAR *information
 	func_save_start,	// (*func_save_start)
 	NULL,	// (*func_save_end)
 	NULL,	// EXFUNC *exfunc;
@@ -119,6 +119,12 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 			if(fp->exfunc->get_file_info(editp,&fip)) g_config.SetFps(fip.video_rate,fip.video_scale);
 			g_config.SetFrameN(editp,fp->exfunc->get_frame_n(editp));
 			break;
+		//[ru]閉じたとき
+		case WM_FILTER_FILE_CLOSE:
+			g_config.SetFrameN(NULL, 0);
+			g_config.SetFps(10, 10);
+			break;
+		//ここまで
 		case WM_COMMAND:
 			switch(LOWORD(wparam)) {
 				case IDC_BUADD:
@@ -140,8 +146,16 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 					g_keyhook = 1;
 					break;
 				case IDC_CHECK1:
+				//[ru]ついでに
+				case IDC_CHECKSC:
+				//ここまで
 					g_config.AuotSaveCheck();
 					break;
+				//[ru]追加
+				case IDC_BUDETECT:
+					g_config.DetectMute();
+					break;
+				//ここまで
 			}
 			break;
 	}

@@ -3,6 +3,8 @@
 //---------------------------------------------------------------------
 #include <windows.h>
 #include <stdio.h>
+#include <vector>
+#include <string>
 #include "filter.h"
 
 #define NUMHIS 30	// •Û‘¶‚·‚é—š—ğ‚Ì”
@@ -17,6 +19,11 @@ typedef struct
 	int m_Frame[100];
 	char m_strTitle[100][STRLEN];
 } PrfDat;
+
+typedef struct {
+	int frame;
+	std::string title;
+} chapter;
 
 class CfgDlg
 {
@@ -53,4 +60,8 @@ public:
 	void AutoSave();
 	void Load();
 	void AuotSaveCheck();
+
+	//[ru]ŠÖ”’Ç‰Á
+	void DetectMute();
+	//‚±‚±‚Ü‚Å
 };
