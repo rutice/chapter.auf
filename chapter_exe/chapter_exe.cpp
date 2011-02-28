@@ -1,4 +1,4 @@
-// chapter_exe.cpp : ƒRƒ“ƒ\[ƒ‹ ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌƒGƒ“ƒgƒŠ ƒ|ƒCƒ“ƒg‚ð’è‹`‚µ‚Ü‚·B
+ï»¿// chapter_exe.cpp : ã‚³ãƒ³ã‚½ãƒ¼ãƒ« ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ã‚¨ãƒ³ãƒˆãƒª ãƒã‚¤ãƒ³ãƒˆã‚’å®šç¾©ã—ã¾ã™ã€‚
 //
 
 #include "stdafx.h"
@@ -210,7 +210,7 @@ public:
 	}
 };
 
-// FAWƒ`ƒFƒbƒN‚ÆAFAWPreview.auf‚ðŽg‚Á‚Ä‚Ì1ƒtƒŒ[ƒ€ƒfƒR[ƒh
+// FAWãƒã‚§ãƒƒã‚¯ã¨ã€FAWPreview.aufã‚’ä½¿ã£ã¦ã®1ãƒ•ãƒ¬ãƒ¼ãƒ ãƒ‡ã‚³ãƒ¼ãƒ‰
 class CFAW {
 	bool is_half;
 
@@ -251,10 +251,10 @@ public:
 		return load_failed;
 	}
 
-	// FAWŠJŽn’n“_‚ð’T‚·B1/2‚ÈFAW‚ªŒ©‚Â‚©‚ê‚ÎAˆÈ~‚Í‚»‚ê‚µ‚©’T‚³‚È‚¢B
-	// in: get_audio()‚Å“¾‚½‰¹ºƒf[ƒ^
-	// samples: get_audio() * ch”
-	// –ß‚è’lFFAWŠJŽnˆÊ’u‚ÌƒCƒ“ƒfƒbƒNƒXB‚È‚¯‚ê‚Î-1
+	// FAWé–‹å§‹åœ°ç‚¹ã‚’æŽ¢ã™ã€‚1/2ãªFAWãŒè¦‹ã¤ã‹ã‚Œã°ã€ä»¥é™ã¯ãã‚Œã—ã‹æŽ¢ã•ãªã„ã€‚
+	// in: get_audio()ã§å¾—ãŸéŸ³å£°ãƒ‡ãƒ¼ã‚¿
+	// samples: get_audio() * chæ•°
+	// æˆ»ã‚Šå€¤ï¼šFAWé–‹å§‹ä½ç½®ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€‚ãªã‘ã‚Œã°-1
 	int findFAW(short *in, int samples) {
 		// search for 72 F8 1F 4E 07 01 00 00
 		static unsigned char faw11[] = {0x72, 0xF8, 0x1F, 0x4E, 0x07, 0x01, 0x00, 0x00};
@@ -280,11 +280,11 @@ public:
 		return -1;
 	}
 
-	// FAWPreview.auf‚ðŽg‚Á‚ÄFAWƒf[ƒ^1‚Â‚ð’Šo•ƒfƒR[ƒh‚·‚é
-	// in: FAWŠJŽnˆÊ’u‚Ìƒ|ƒCƒ“ƒ^BfindFAW‚É“n‚µ‚½in + findFAW‚Ì–ß‚è’l
-	// samples: in‚É‚ ‚éƒf[ƒ^‚ÌshortŠ·ŽZ‚Å‚ÌƒTƒCƒY
-	// out: ƒfƒR[ƒhŒ‹‰Ê‚ð“ü‚ê‚éƒoƒbƒtƒ@(16bit, 2ch‚Å1024ƒTƒ“ƒvƒ‹)
-	//     i1024sample * 2byte * 2ch = 4096ƒoƒCƒg•K—vj
+	// FAWPreview.aufã‚’ä½¿ã£ã¦FAWãƒ‡ãƒ¼ã‚¿1ã¤ã‚’æŠ½å‡ºï¼†ãƒ‡ã‚³ãƒ¼ãƒ‰ã™ã‚‹
+	// in: FAWé–‹å§‹ä½ç½®ã®ãƒã‚¤ãƒ³ã‚¿ã€‚findFAWã«æ¸¡ã—ãŸin + findFAWã®æˆ»ã‚Šå€¤
+	// samples: inã«ã‚ã‚‹ãƒ‡ãƒ¼ã‚¿ã®shortæ›ç®—ã§ã®ã‚µã‚¤ã‚º
+	// out: ãƒ‡ã‚³ãƒ¼ãƒ‰çµæžœã‚’å…¥ã‚Œã‚‹ãƒãƒƒãƒ•ã‚¡(16bit, 2chã§1024ã‚µãƒ³ãƒ—ãƒ«)
+	//     ï¼ˆ1024sample * 2byte * 2ch = 4096ãƒã‚¤ãƒˆå¿…è¦ï¼‰
 	int decodeFAW(const short *in, int samples, short *out){
 		if (load()) {
 			return _ExtractDecode1FAW(in, samples, out, is_half);
@@ -298,7 +298,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	printf(_T("chapter.auf pre loading program.\n"));
 	printf(_T("usage:\n"));
 	printf(_T("\tchapter_exe.exe -v input_avs -o output_txt\n"));
-	printf(_T("params:\n\t-v “ü—Í‰æ‘œƒtƒ@ƒCƒ‹\n\t-a “ü—Í‰¹ºƒtƒ@ƒCƒ‹iÈ—ªŽž‚Í“®‰æ‚Æ“¯‚¶ƒtƒ@ƒCƒ‹j\n\t-m –³‰¹”»’èè‡’li1`2^15)\n\t-s Å’á–³‰¹ƒtƒŒ[ƒ€”\n"));
+	printf(_T("params:\n\t-v å…¥åŠ›ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«\n\t-a å…¥åŠ›éŸ³å£°ãƒ•ã‚¡ã‚¤ãƒ«ï¼ˆçœç•¥æ™‚ã¯å‹•ç”»ã¨åŒã˜ãƒ•ã‚¡ã‚¤ãƒ«ï¼‰\n\t-m ç„¡éŸ³åˆ¤å®šé–¾å€¤ï¼ˆ1ï½ž2^15)\n\t-s æœ€ä½Žç„¡éŸ³ãƒ•ãƒ¬ãƒ¼ãƒ æ•°\n"));
 
 	TCHAR *avsv = NULL;
 	TCHAR *avsa = NULL;
@@ -367,12 +367,12 @@ int _tmain(int argc, _TCHAR* argv[])
 			throw "Error: No Video Found!";
 		}
 		video = &srcv;
-		// “¯‚¶ƒ\[ƒX‚Ìê‡‚Í“¯‚¶ƒCƒ“ƒXƒ^ƒ“ƒX‚Å“Ç‚Ýž‚Þ
+		// åŒã˜ã‚½ãƒ¼ã‚¹ã®å ´åˆã¯åŒã˜ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã§èª­ã¿è¾¼ã‚€
 		if (strcmp(avsv, avsa) == 0 && srcv.has_audio()) {
 			audio = &srcv;
 		}
 
-		// ‰¹º‚ª•Êƒtƒ@ƒCƒ‹‚ÌŽž
+		// éŸ³å£°ãŒåˆ¥ãƒ•ã‚¡ã‚¤ãƒ«ã®æ™‚
 		if (audio == NULL) {
 			if (strlen(avsa) > 4 && _stricmp(".wav", avsa + strlen(avsa) - 4) == 0) {
 				// wav
@@ -502,7 +502,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			if (seri >= setseri) {
 				int start_fr = i - seri;
 
-				printf(_T("mute%2d: %d - %dƒtƒŒ[ƒ€\n"), idx, i-seri, seri);
+				printf(_T("mute%2d: %d - %dãƒ•ãƒ¬ãƒ¼ãƒ \n"), idx, i-seri, seri);
 
 				int w = vii.format->biWidth & 0xFFFFFFF0;
 				int h = vii.format->biHeight & 0xFFFFFFF0;
@@ -527,18 +527,18 @@ int _tmain(int argc, _TCHAR* argv[])
 
 				char *mark = "";
 				if (idx > 1 && abs(max_pos - frames[idx-1] - 30*15) < 30) {
-					mark = "š";
+					mark = "â˜…";
 				} else if (idx > 1 && abs(max_pos - frames[idx-1] - 30*30) < 30) {
-					mark = "šš";
+					mark = "â˜…â˜…";
 				} else if (idx > 1 && abs(max_pos - frames[idx-1] - 30*45) < 30) {
-					mark = "ššš";
+					mark = "â˜…â˜…â˜…";
 				} else if (idx > 1 && abs(max_pos - frames[idx-1] - 30*60) < 30) {
-					mark = "šššš";
+					mark = "â˜…â˜…â˜…â˜…";
 				}
 				printf("\t SCPos: %d %s\n", max_pos, mark);
 
 				TCHAR title[256];
-				sprintf_s(title, _T("%dƒtƒŒ[ƒ€ %s SCPos:%d"), seri, mark, max_pos);
+				sprintf_s(title, _T("%dãƒ•ãƒ¬ãƒ¼ãƒ  %s SCPos:%d"), seri, mark, max_pos);
 
 				write_chapter(fout, idx, i-seri, title, &vii);
 				idx++;

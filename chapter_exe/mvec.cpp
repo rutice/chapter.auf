@@ -1,8 +1,8 @@
-// IIR_3DNRƒtƒBƒ‹ƒ^  by H_Kasahara(aka.HK) ‚æ‚è”qØ
+ï»¿// IIR_3DNRãƒ•ã‚£ãƒ«ã‚¿  by H_Kasahara(aka.HK) ã‚ˆã‚Šæ‹å€Ÿ
 
 
 //---------------------------------------------------------------------
-//		“®‚«ŒŸõˆ——p
+//		å‹•ãæ¤œç´¢å‡¦ç†ç”¨
 //---------------------------------------------------------------------
 
 #include "stdafx.h"
@@ -13,10 +13,10 @@
 
 #define FRAME_PICTURE	1
 #define FIELD_PICTURE	2
-#define MAX_SEARCH_EXTENT 32	//‘S’Tõ‚ÌÅ‘å’Tõ”ÍˆÍB+-‚±‚Ì’l‚Ü‚ÅB
+#define MAX_SEARCH_EXTENT 32	//å…¨æ¢ç´¢ã®æœ€å¤§æ¢ç´¢ç¯„å›²ã€‚+-ã“ã®å€¤ã¾ã§ã€‚
 
 //---------------------------------------------------------------------
-//		ŠÖ”’è‹`
+//		é–¢æ•°å®šç¾©
 //---------------------------------------------------------------------
 void make_motion_lookup_table();
 BOOL mvec(unsigned char* current_pix,unsigned char* bef_pix,int* vx,int* vy,int lx,int ly,int threshold,int pict_struct,int SC_level);
@@ -25,7 +25,7 @@ int full_search(unsigned char* current_pix,unsigned char* bef_pix,int lx,int ly,
 int dist( unsigned char *p1, unsigned char *p2, int lx, int distlim, int block_hight );
 
 //---------------------------------------------------------------------
-//		ƒOƒ[ƒoƒ‹•Ï”
+//		ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°
 //---------------------------------------------------------------------
 int	block_hight, lx2;
 
@@ -40,42 +40,42 @@ int dxplus[] = {16,16,16,32,16,16,16, 0,
 				 2, 2, 2, 4, 2, 2, 2, 0,
 				 1, 1, 1, 2, 1, 1, 1, 0,};
 //---------------------------------------------------------------------
-//		“®‚«Œë·”»’èŠÖ”
+//		å‹•ãèª¤å·®åˆ¤å®šé–¢æ•°
 //---------------------------------------------------------------------
-//[ru] “®‚«ƒxƒNƒgƒ‹‚Ì‡Œv‚ğ•Ô‚·
+//[ru] å‹•ããƒ™ã‚¯ãƒˆãƒ«ã®åˆè¨ˆã‚’è¿”ã™
 int tree=0, full=0;
-int mvec(unsigned char* current_pix, 	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
-		  unsigned char* bef_pix,		//‘OƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
-		  int lx,						//‰æ‘œ‚Ì‰¡•
-		  int ly,						//‰æ‘œ‚Ìc•
-		  int threshold,				//ŒŸõ¸“xB(100-fp->track[1])*50 cc 50‚Í“K“–‚È’lB
-		  int pict_struct)				//"1"‚È‚çƒtƒŒ[ƒ€ˆ—A"2"‚È‚çƒtƒB[ƒ‹ƒhˆ—
+int mvec(unsigned char* current_pix, 	//ç¾ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ã€‚8ãƒ“ãƒƒãƒˆã€‚
+		  unsigned char* bef_pix,		//å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ã€‚8ãƒ“ãƒƒãƒˆã€‚
+		  int lx,						//ç”»åƒã®æ¨ªå¹…
+		  int ly,						//ç”»åƒã®ç¸¦å¹…
+		  int threshold,				//æ¤œç´¢ç²¾åº¦ã€‚(100-fp->track[1])*50 â€¦â€¦ 50ã¯é©å½“ãªå€¤ã€‚
+		  int pict_struct)				//"1"ãªã‚‰ãƒ•ãƒ¬ãƒ¼ãƒ å‡¦ç†ã€"2"ãªã‚‰ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å‡¦ç†
 {
 	int x, y;
 	unsigned char *p1, *p2;
 	int motion_vector_total = 0;
 
-//ŠÖ”‚ğŒÄ‚Ño‚·–ˆ‚ÉŒvZ‚¹‚¸‚É‚·‚Ş‚æ‚¤ƒOƒ[ƒoƒ‹•Ï”‚Æ‚·‚é
+//é–¢æ•°ã‚’å‘¼ã³å‡ºã™æ¯ã«è¨ˆç®—ã›ãšã«ã™ã‚€ã‚ˆã†ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã¨ã™ã‚‹
 	lx2 = lx*pict_struct;
 	block_hight = 16/pict_struct;
 
 	for(int i=0;i<pict_struct;i++)
 	{
-		for(y=i;y<ly;y+=16)	//‘S‘Ìc²
+		for(y=i;y<ly;y+=16)	//å…¨ä½“ç¸¦è»¸
 		{
 			p1 = current_pix + y*lx;
 			p2 = bef_pix + y*lx;
-			for(x=0;x<lx;x+=16)	//‘S‘Ì‰¡²
+			for(x=0;x<lx;x+=16)	//å…¨ä½“æ¨ªè»¸
 			{
 				int vx=0, vy=0;
 				int min = dist( p1, p2, lx2, INT_MAX, block_hight );
 				if( threshold < (min = tree_search( p1, p2, lx, ly, &vx, &vy, x, y, min, pict_struct)) && (vx!=0 || vy!=0) )
 					if( threshold < (min = tree_search( p1, &p2[vy * lx + vx], lx, ly, &vx, &vy, x+vx, y+vy, min, pict_struct)) )
 						if( threshold < (min = tree_search( p1, &p2[vy * lx + vx], lx, ly, &vx, &vy, x+vx, y+vy, min, pict_struct)) )
-//3‰ñ‚ÌƒcƒŠ[’Tõ‚Å‚àƒtƒŒ[ƒ€ŠÔ‚Ìâ‘Î’l·‚ª‘å‚«‚¯‚ê‚Î‘S’Tõ‚ğ‚¨‚±‚È‚¤
+//3å›ã®ãƒ„ãƒªãƒ¼æ¢ç´¢ã§ã‚‚ãƒ•ãƒ¬ãƒ¼ãƒ é–“ã®çµ¶å¯¾å€¤å·®ãŒå¤§ãã‘ã‚Œã°å…¨æ¢ç´¢ã‚’ãŠã“ãªã†
 							full_search( p1, &p2[vy * lx + vx], lx, ly, &vx, &vy, x+vx, y+vy, min, pict_struct, max(abs(vx),abs(vy))*2 );
 
-//“®‚«ƒxƒNƒgƒ‹‚Ì‡Œv‚ªƒV[ƒ“ƒ`ƒFƒ“ƒWƒŒƒxƒ‹‚ğ’´‚¦‚Ä‚¢‚½‚çAƒV[ƒ“ƒ`ƒFƒ“ƒW‚Æ”»’è‚µ‚ÄTRUE‚ğ•Ô‚µ‚ÄI—¹
+//å‹•ããƒ™ã‚¯ãƒˆãƒ«ã®åˆè¨ˆãŒã‚·ãƒ¼ãƒ³ãƒã‚§ãƒ³ã‚¸ãƒ¬ãƒ™ãƒ«ã‚’è¶…ãˆã¦ã„ãŸã‚‰ã€ã‚·ãƒ¼ãƒ³ãƒã‚§ãƒ³ã‚¸ã¨åˆ¤å®šã—ã¦TRUEã‚’è¿”ã—ã¦çµ‚äº†
 				motion_vector_total += abs(vx)+abs(vy);
 
 				p1+=16;
@@ -91,18 +91,18 @@ int mvec(unsigned char* current_pix, 	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
 	return motion_vector_total;
 }
 //---------------------------------------------------------------------
-//		ƒcƒŠ[’Tõ–@“®‚«ŒŸõŠÖ”
+//		ãƒ„ãƒªãƒ¼æ¢ç´¢æ³•å‹•ãæ¤œç´¢é–¢æ•°
 //---------------------------------------------------------------------
-int tree_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
-				unsigned char* bef_pix,		//‘OƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
-				int lx,						//‰æ‘œ‚Ì‰¡•
-				int ly,						//‰æ‘œ‚Ìc•
-				int *vx,					//x•ûŒü‚Ì“®‚«ƒxƒNƒgƒ‹‚ª‘ã“ü‚³‚ê‚éB
-				int *vy,					//y•ûŒü‚Ì“®‚«ƒxƒNƒgƒ‹‚ª‘ã“ü‚³‚ê‚éB
-				int search_block_x,			//ŒŸõˆÊ’u
-				int search_block_y,			//ŒŸõˆÊ’u
-				int min,					//“¯ˆÊ’u‚Å‚ÌƒtƒŒ[ƒ€ŠÔ‚Ìâ‘Î’l·BŠÖ”“à‚Å‚Í“¯ˆÊ’u‚Ì”äŠr‚ğ‚µ‚È‚¢‚Ì‚ÅAŒÄ‚Ño‚·‘O‚És‚¤•K—v‚ ‚èB
-				int pict_struct)			//"1"‚È‚çƒtƒŒ[ƒ€ˆ—A"2"‚È‚çƒtƒB[ƒ‹ƒhˆ—
+int tree_search(unsigned char* current_pix,	//ç¾ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ã€‚8ãƒ“ãƒƒãƒˆã€‚
+				unsigned char* bef_pix,		//å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ã€‚8ãƒ“ãƒƒãƒˆã€‚
+				int lx,						//ç”»åƒã®æ¨ªå¹…
+				int ly,						//ç”»åƒã®ç¸¦å¹…
+				int *vx,					//xæ–¹å‘ã®å‹•ããƒ™ã‚¯ãƒˆãƒ«ãŒä»£å…¥ã•ã‚Œã‚‹ã€‚
+				int *vy,					//yæ–¹å‘ã®å‹•ããƒ™ã‚¯ãƒˆãƒ«ãŒä»£å…¥ã•ã‚Œã‚‹ã€‚
+				int search_block_x,			//æ¤œç´¢ä½ç½®
+				int search_block_y,			//æ¤œç´¢ä½ç½®
+				int min,					//åŒä½ç½®ã§ã®ãƒ•ãƒ¬ãƒ¼ãƒ é–“ã®çµ¶å¯¾å€¤å·®ã€‚é–¢æ•°å†…ã§ã¯åŒä½ç½®ã®æ¯”è¼ƒã‚’ã—ãªã„ã®ã§ã€å‘¼ã³å‡ºã™å‰ã«è¡Œã†å¿…è¦ã‚ã‚Šã€‚
+				int pict_struct)			//"1"ãªã‚‰ãƒ•ãƒ¬ãƒ¼ãƒ å‡¦ç†ã€"2"ãªã‚‰ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å‡¦ç†
 {
 	tree++;
 	int dx, dy, ddx=0, ddy=0, xs=0, ys;
@@ -111,24 +111,24 @@ int tree_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
 	int speedup = pict_struct-1;
 	int *x_plus_p = x_plus,
 		*dxplus_p = dxplus;
-//ŒŸõ”ÍˆÍ‚ÌãŒÀ‚Æ‰ºŒÀ‚ğİ’è
+//æ¤œç´¢ç¯„å›²ã®ä¸Šé™ã¨ä¸‹é™ã‚’è¨­å®š
 	int ylow  = 0 - search_block_y;
 	int yhigh = ly- search_block_y-16;
 	int xlow  = 0 - search_block_x;
 	int xhigh = lx- search_block_x-16;
 
-//ŒŸõ”ÍˆÍ‚ª‰æ‘œ‚©‚ç‚Í‚İo‚È‚¢‚æ‚¤‚È‚çAˆ—‚‘¬‰»‚Ì‚½‚ß‚ÉA‰æ–ÊŠO‚Éo‚½‚©‚Ìƒ`ƒFƒbƒN‚ğs‚í‚È‚¢ƒ‹[ƒ`ƒ“‚ğg—p‚·‚éB
+//æ¤œç´¢ç¯„å›²ãŒç”»åƒã‹ã‚‰ã¯ã¿å‡ºãªã„ã‚ˆã†ãªã‚‰ã€å‡¦ç†é«˜é€ŸåŒ–ã®ãŸã‚ã«ã€ç”»é¢å¤–ã«å‡ºãŸã‹ã®ãƒã‚§ãƒƒã‚¯ã‚’è¡Œã‚ãªã„ãƒ«ãƒ¼ãƒãƒ³ã‚’ä½¿ç”¨ã™ã‚‹ã€‚
 	if(-31<ylow || yhigh<31 || -31<xlow || xhigh<31)
 	{
-		for(int i=16;i>speedup;i=i/2){	//ŒŸõ‰ñ”
-//‘OƒtƒŒ[ƒ€‚ÌƒuƒƒbƒN‚ÌˆÊ’u‚ğˆÚ“®‚³‚¹Œ»ƒtƒŒ[ƒ€‚Ì‚Æ‚Ìâ‘Î’l·‚ğ’Ç‰Á‚µ‚Ä‚¢‚­B
+		for(int i=16;i>speedup;i=i/2){	//æ¤œç´¢å›æ•°
+//å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ–ãƒ­ãƒƒã‚¯ã®ä½ç½®ã‚’ç§»å‹•ã•ã›ç¾ãƒ•ãƒ¬ãƒ¼ãƒ ã®ã¨ã®çµ¶å¯¾å€¤å·®ã‚’è¿½åŠ ã—ã¦ã„ãã€‚
 			for(y=0,dy=ddy-i;y<3;y++,dy+=i){
-				if( dy<ylow || dy>yhigh )	continue;	//ŒŸõˆÊ’u‚ª‰æ–ÊŠO‚Éo‚Ä‚¢‚½‚çŒŸõ‚ğ‚¨‚±‚È‚í‚È‚¢B
-				ys = dy * lx;	//ŒŸõˆÊ’uc²
+				if( dy<ylow || dy>yhigh )	continue;	//æ¤œç´¢ä½ç½®ãŒç”»é¢å¤–ã«å‡ºã¦ã„ãŸã‚‰æ¤œç´¢ã‚’ãŠã“ãªã‚ãªã„ã€‚
+				ys = dy * lx;	//æ¤œç´¢ä½ç½®ç¸¦è»¸
 				for(x=0,dx=xs-i;x<3;x+=*x_plus_p,dx+=*dxplus_p){
-					if( dx<xlow || dx>xhigh )	continue;	//ŒŸõˆÊ’u‚ª‰æ–ÊŠO‚Éo‚Ä‚¢‚½‚çŒŸõ‚ğ‚¨‚±‚È‚í‚È‚¢B
+					if( dx<xlow || dx>xhigh )	continue;	//æ¤œç´¢ä½ç½®ãŒç”»é¢å¤–ã«å‡ºã¦ã„ãŸã‚‰æ¤œç´¢ã‚’ãŠã“ãªã‚ãªã„ã€‚
 					d = dist( current_pix, &bef_pix[ys+dx], lx2, min, block_hight );
-					if( d <= min ){	//‚±‚ê‚Ü‚Å‚ÌŒŸõ‚æ‚èƒtƒŒ[ƒ€ŠÔ‚Ìâ‘Î’l·‚ª¬‚³‚©‚Á‚½‚ç‚»‚ê‚¼‚ê‘ã“üB
+					if( d <= min ){	//ã“ã‚Œã¾ã§ã®æ¤œç´¢ã‚ˆã‚Šãƒ•ãƒ¬ãƒ¼ãƒ é–“ã®çµ¶å¯¾å€¤å·®ãŒå°ã•ã‹ã£ãŸã‚‰ãã‚Œãã‚Œä»£å…¥ã€‚
 						min = d;
 						ddx = dx;
 						ddy = dy;
@@ -141,9 +141,9 @@ int tree_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
 		}
 		if(pict_struct==FIELD_PICTURE){
 			for(x=0,dx=ddx-1;x<3;x+=2,dx+=2){
-				if( search_block_x+dx<0 || search_block_x+dx+16>lx )	continue;	//ŒŸõˆÊ’u‚ª‰æ–ÊŠO‚Éo‚Ä‚¢‚½‚çŒŸõ‚ğ‚¨‚±‚È‚í‚È‚¢B
+				if( search_block_x+dx<0 || search_block_x+dx+16>lx )	continue;	//æ¤œç´¢ä½ç½®ãŒç”»é¢å¤–ã«å‡ºã¦ã„ãŸã‚‰æ¤œç´¢ã‚’ãŠã“ãªã‚ãªã„ã€‚
 				d = dist( current_pix, &bef_pix[ys+dx], lx2, min, block_hight );
-				if( d <= min ){	//‚±‚ê‚Ü‚Å‚ÌŒŸõ‚æ‚èƒtƒŒ[ƒ€ŠÔ‚Ìâ‘Î’l·‚ª¬‚³‚©‚Á‚½‚ç‚»‚ê‚¼‚ê‘ã“üB
+				if( d <= min ){	//ã“ã‚Œã¾ã§ã®æ¤œç´¢ã‚ˆã‚Šãƒ•ãƒ¬ãƒ¼ãƒ é–“ã®çµ¶å¯¾å€¤å·®ãŒå°ã•ã‹ã£ãŸã‚‰ãã‚Œãã‚Œä»£å…¥ã€‚
 					min = d;
 					ddx = dx;
 				}
@@ -152,13 +152,13 @@ int tree_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
 	}
 	else
 	{
-		for(int i=16;i>speedup;i=i/2){	//ŒŸõ‰ñ”
-//‘OƒtƒŒ[ƒ€‚ÌƒuƒƒbƒN‚ÌˆÊ’u‚ğˆÚ“®‚³‚¹Œ»ƒtƒŒ[ƒ€‚Ì‚Æ‚Ìâ‘Î’l·‚ğ’Ç‰Á‚µ‚Ä‚¢‚­B
+		for(int i=16;i>speedup;i=i/2){	//æ¤œç´¢å›æ•°
+//å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ–ãƒ­ãƒƒã‚¯ã®ä½ç½®ã‚’ç§»å‹•ã•ã›ç¾ãƒ•ãƒ¬ãƒ¼ãƒ ã®ã¨ã®çµ¶å¯¾å€¤å·®ã‚’è¿½åŠ ã—ã¦ã„ãã€‚
 			for(y=0,dy=ddy-i;y<3;y++,dy+=i){
-				ys = dy * lx;	//ŒŸõˆÊ’uc²
+				ys = dy * lx;	//æ¤œç´¢ä½ç½®ç¸¦è»¸
 				for(x=0,dx=xs-i;x<3;x+=*x_plus_p,dx+=*dxplus_p){
 					d = dist( current_pix, &bef_pix[ys+dx], lx2, min, block_hight );
-					if( d <= min ){	//‚±‚ê‚Ü‚Å‚ÌŒŸõ‚æ‚èƒtƒŒ[ƒ€ŠÔ‚Ìâ‘Î’l·‚ª¬‚³‚©‚Á‚½‚ç‚»‚ê‚¼‚ê‘ã“üB
+					if( d <= min ){	//ã“ã‚Œã¾ã§ã®æ¤œç´¢ã‚ˆã‚Šãƒ•ãƒ¬ãƒ¼ãƒ é–“ã®çµ¶å¯¾å€¤å·®ãŒå°ã•ã‹ã£ãŸã‚‰ãã‚Œãã‚Œä»£å…¥ã€‚
 						min = d;
 						ddx = dx;
 						ddy = dy;
@@ -172,7 +172,7 @@ int tree_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
 		if(pict_struct==FIELD_PICTURE){
 			for(x=0,dx=ddx-1;x<3;x+=2,dx+=2){
 				d = dist( current_pix, &bef_pix[ys+dx], lx2, min, block_hight );
-				if( d <= min ){	//‚±‚ê‚Ü‚Å‚ÌŒŸõ‚æ‚èƒtƒŒ[ƒ€ŠÔ‚Ìâ‘Î’l·‚ª¬‚³‚©‚Á‚½‚ç‚»‚ê‚¼‚ê‘ã“üB
+				if( d <= min ){	//ã“ã‚Œã¾ã§ã®æ¤œç´¢ã‚ˆã‚Šãƒ•ãƒ¬ãƒ¼ãƒ é–“ã®çµ¶å¯¾å€¤å·®ãŒå°ã•ã‹ã£ãŸã‚‰ãã‚Œãã‚Œä»£å…¥ã€‚
 					min = d;
 					ddx = dx;
 				}
@@ -186,19 +186,19 @@ int tree_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
 	return min;
 }
 //---------------------------------------------------------------------
-//		‘S’Tõ–@“®‚«ŒŸõŠÖ”
+//		å…¨æ¢ç´¢æ³•å‹•ãæ¤œç´¢é–¢æ•°
 //---------------------------------------------------------------------
-int full_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
-				unsigned char* bef_pix,		//‘OƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
-				int lx,						//‰æ‘œ‚Ì‰¡•
-				int ly,						//‰æ‘œ‚Ìc•
-				int *vx,					//x•ûŒü‚Ì“®‚«ƒxƒNƒgƒ‹‚ª‘ã“ü‚³‚ê‚éB
-				int *vy,					//y•ûŒü‚Ì“®‚«ƒxƒNƒgƒ‹‚ª‘ã“ü‚³‚ê‚éB
-				int search_block_x,			//ŒŸõˆÊ’u
-				int search_block_y,			//ŒŸõˆÊ’u
-				int min,					//ƒtƒŒ[ƒ€ŠÔ‚Ìâ‘Î’l·BÅ‰‚Ì’Tõ‚Å‚ÍINT_MAX‚ª“ü‚Á‚Ä‚¢‚éB
-				int pict_struct,			//"1"‚È‚çƒtƒŒ[ƒ€ˆ—A"2"‚È‚çƒtƒB[ƒ‹ƒhˆ—
-				int search_extent)			//’Tõ”ÍˆÍB
+int full_search(unsigned char* current_pix,	//ç¾ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ã€‚8ãƒ“ãƒƒãƒˆã€‚
+				unsigned char* bef_pix,		//å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ã€‚8ãƒ“ãƒƒãƒˆã€‚
+				int lx,						//ç”»åƒã®æ¨ªå¹…
+				int ly,						//ç”»åƒã®ç¸¦å¹…
+				int *vx,					//xæ–¹å‘ã®å‹•ããƒ™ã‚¯ãƒˆãƒ«ãŒä»£å…¥ã•ã‚Œã‚‹ã€‚
+				int *vy,					//yæ–¹å‘ã®å‹•ããƒ™ã‚¯ãƒˆãƒ«ãŒä»£å…¥ã•ã‚Œã‚‹ã€‚
+				int search_block_x,			//æ¤œç´¢ä½ç½®
+				int search_block_y,			//æ¤œç´¢ä½ç½®
+				int min,					//ãƒ•ãƒ¬ãƒ¼ãƒ é–“ã®çµ¶å¯¾å€¤å·®ã€‚æœ€åˆã®æ¢ç´¢ã§ã¯INT_MAXãŒå…¥ã£ã¦ã„ã‚‹ã€‚
+				int pict_struct,			//"1"ãªã‚‰ãƒ•ãƒ¬ãƒ¼ãƒ å‡¦ç†ã€"2"ãªã‚‰ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å‡¦ç†
+				int search_extent)			//æ¢ç´¢ç¯„å›²ã€‚
 {
 	full++;
 	int dx, dy, ddx=0, ddy=0, ys;
@@ -209,7 +209,7 @@ int full_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
 	if(search_extent>MAX_SEARCH_EXTENT)
 		search_extent = MAX_SEARCH_EXTENT;
 
-//ŒŸõ”ÍˆÍ‚ÌãŒÀ‚Æ‰ºŒÀ‚ª‰æ‘œ‚©‚ç‚Í‚İo‚µ‚Ä‚¢‚È‚¢‚©ƒ`ƒFƒbƒN
+//æ¤œç´¢ç¯„å›²ã®ä¸Šé™ã¨ä¸‹é™ãŒç”»åƒã‹ã‚‰ã¯ã¿å‡ºã—ã¦ã„ãªã„ã‹ãƒã‚§ãƒƒã‚¯
 	int ylow  = 0 - ( (search_block_y-search_extent<0) ? search_block_y : search_extent );
 	int yhigh = (search_block_y+search_extent+16>ly) ? ly-search_block_y-16 : search_extent;
 	int xlow  = 0 - ( (search_block_x-search_extent<0) ? search_block_x : search_extent );
@@ -217,11 +217,11 @@ int full_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
 
 	for(dy=ylow;dy<=yhigh;dy+=pict_struct)
 	{
-		p2 = bef_pix + dy*lx + xlow;	//Y²ŒŸõˆÊ’uBxlow‚Í•‰‚Ì’l‚È‚Ì‚Å"p2=bef_pix+dy*lx-xlow"‚Æ‚Í‚È‚ç‚È‚¢
+		p2 = bef_pix + dy*lx + xlow;	//Yè»¸æ¤œç´¢ä½ç½®ã€‚xlowã¯è² ã®å€¤ãªã®ã§"p2=bef_pix+dy*lx-xlow"ã¨ã¯ãªã‚‰ãªã„
 		for(dx=xlow;dx<=xhigh;dx++)
 		{
 			d = dist( current_pix, p2, lx2, min, block_hight );
-			if(d <= min)	//‚±‚ê‚Ü‚Å‚ÌŒŸõ‚æ‚èƒtƒŒ[ƒ€ŠÔ‚Ìâ‘Î’l·‚ª¬‚³‚©‚Á‚½‚ç‚»‚ê‚¼‚ê‘ã“üB
+			if(d <= min)	//ã“ã‚Œã¾ã§ã®æ¤œç´¢ã‚ˆã‚Šãƒ•ãƒ¬ãƒ¼ãƒ é–“ã®çµ¶å¯¾å€¤å·®ãŒå°ã•ã‹ã£ãŸã‚‰ãã‚Œãã‚Œä»£å…¥ã€‚
 			{
 				min = d;
 				ddx = dx;
@@ -237,9 +237,9 @@ int full_search(unsigned char* current_pix,	//Œ»ƒtƒŒ[ƒ€‚Ì‹P“xB8ƒrƒbƒgB
 	return min;
 }
 //---------------------------------------------------------------------
-//		ƒtƒŒ[ƒ€ŠÔâ‘Î’l·‡ŒvŠÖ”
+//		ãƒ•ãƒ¬ãƒ¼ãƒ é–“çµ¶å¯¾å€¤å·®åˆè¨ˆé–¢æ•°
 //---------------------------------------------------------------------
-//bbMPEG‚Ìƒ\[ƒX‚ğ—¬—p
+//bbMPEGã®ã‚½ãƒ¼ã‚¹ã‚’æµç”¨
 #include <emmintrin.h>
 
 int dist( unsigned char *p1, unsigned char *p2, int lx, int distlim, int block_height )
@@ -315,17 +315,17 @@ int dist( unsigned char *p1, unsigned char *p2, int lx, int distlim, int block_h
 	return s;
 }
 //---------------------------------------------------------------------
-//		ƒtƒŒ[ƒ€ŠÔâ‘Î’l·‡ŒvŠÖ”(SSEƒo[ƒWƒ‡ƒ“)
+//		ãƒ•ãƒ¬ãƒ¼ãƒ é–“çµ¶å¯¾å€¤å·®åˆè¨ˆé–¢æ•°(SSEãƒãƒ¼ã‚¸ãƒ§ãƒ³)
 //---------------------------------------------------------------------
 int dist_SSE( unsigned char *p1, unsigned char *p2, int lx, int distlim, int block_hight )
 {
 	int s = 0;
 /*
-dist_normal‚ğŒ©‚é‚Æ•ª‚©‚é‚æ‚¤‚ÉAp1‚Æp2‚Ìâ‘Î’l·‚ğ‘«‚µ‚Ä‚«Adistlim‚ğ’´‚¦‚½‚ç‚»‚Ì‡Œv‚ğ•Ô‚·‚¾‚¯B
-block_hight‚É‚Í8‚©16‚ª‘ã“ü‚³‚ê‚Ä‚¨‚èA‘OÒ‚ÍƒtƒB[ƒ‹ƒhˆ—AŒãÒ‚ªƒtƒŒ[ƒ€ˆ——pB
-block_hight‚É8‚ª‘ã“ü‚³‚ê‚Ä‚¢‚½‚ç‚ÎAlx‚É‚Í‰æ‘œ‚Ì‰¡•‚ª‘ã“ü‚³‚ê‚Ä‚¢‚éB
-block_hight‚É16‚ª‘ã“ü‚³‚ê‚Ä‚¢‚½‚ç‚ÎAlx‚É‚Í‰æ‘œ‚Ì‰¡•‚Ì“ñ”{‚Ì’l‚ª‘ã“ü‚³‚ê‚Ä‚¢‚éB
-‚Ç‚È‚½‚©A‚±‚±‚ğì¬‚µ‚Ä‚¢‚½‚¾‚¯‚½‚ç‚ÎA”ñí‚ÉŠ´Ó‚¢‚½‚µ‚Ü‚·B
+dist_normalã‚’è¦‹ã‚‹ã¨åˆ†ã‹ã‚‹ã‚ˆã†ã«ã€p1ã¨p2ã®çµ¶å¯¾å€¤å·®ã‚’è¶³ã—ã¦ãã€distlimã‚’è¶…ãˆãŸã‚‰ãã®åˆè¨ˆã‚’è¿”ã™ã ã‘ã€‚
+block_hightã«ã¯8ã‹16ãŒä»£å…¥ã•ã‚Œã¦ãŠã‚Šã€å‰è€…ã¯ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å‡¦ç†ã€å¾Œè€…ãŒãƒ•ãƒ¬ãƒ¼ãƒ å‡¦ç†ç”¨ã€‚
+block_hightã«8ãŒä»£å…¥ã•ã‚Œã¦ã„ãŸã‚‰ã°ã€lxã«ã¯ç”»åƒã®æ¨ªå¹…ãŒä»£å…¥ã•ã‚Œã¦ã„ã‚‹ã€‚
+block_hightã«16ãŒä»£å…¥ã•ã‚Œã¦ã„ãŸã‚‰ã°ã€lxã«ã¯ç”»åƒã®æ¨ªå¹…ã®äºŒå€ã®å€¤ãŒä»£å…¥ã•ã‚Œã¦ã„ã‚‹ã€‚
+ã©ãªãŸã‹ã€ã“ã“ã‚’ä½œæˆã—ã¦ã„ãŸã ã‘ãŸã‚‰ã°ã€éå¸¸ã«æ„Ÿè¬ã„ãŸã—ã¾ã™ã€‚
 */
 	return s;
 }

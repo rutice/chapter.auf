@@ -1,4 +1,4 @@
-// ���̓N���X
+﻿// 入力クラス
 
 #pragma once
 
