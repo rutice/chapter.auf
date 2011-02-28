@@ -1,20 +1,20 @@
-//---------------------------------------------------------------------
-//		©•ª—p‚Ì“K“–‚Èƒ‰ƒCƒuƒ‰ƒŠ by ‚Û‚Ş
+ï»¿//---------------------------------------------------------------------
+//		è‡ªåˆ†ç”¨ã®é©å½“ãªãƒ©ã‚¤ãƒ–ãƒ©ãƒª by ã½ã‚€
 //---------------------------------------------------------------------
 
-// AviUtl‚ÌBuild”Ô†
+// AviUtlã®Buildç•ªå·
 #define VER_99e2	9912
 #define VER_99f		9913
 #define VER_99g3	9916
 #define VER_99g4	9917
 
-// ƒtƒ‹ƒXƒP[ƒ‹‚Å‚ÌF‹óŠÔ•ÏŠ·®
-// ‹P“x(Y)”ÍˆÍF0`4096
-// F·Â(Cb)”ÍˆÍF-2048`2048
-// F·Ô(Cr)”ÍˆÍF-2048`2048
-// ÔF(R)”ÍˆÍF0`4096
-// —ÎF(G)”ÍˆÍF0`4096
-// ÂF(B)”ÍˆÍF0`4096
+// ãƒ•ãƒ«ã‚¹ã‚±ãƒ¼ãƒ«ã§ã®è‰²ç©ºé–“å¤‰æ›å¼
+// è¼åº¦(Y)ç¯„å›²ï¼š0ï½4096
+// è‰²å·®é’(Cb)ç¯„å›²ï¼š-2048ï½2048
+// è‰²å·®èµ¤(Cr)ç¯„å›²ï¼š-2048ï½2048
+// èµ¤è‰²(R)ç¯„å›²ï¼š0ï½4096
+// ç·‘è‰²(G)ç¯„å›²ï¼š0ï½4096
+// é’è‰²(B)ç¯„å›²ï¼š0ï½4096
 #define YC2R(Y,Cb,Cr) (Y + 1.402*Cr)
 #define YC2G(Y,Cb,Cr) (Y - 0.344*Cb - 0.714*Cr)
 #define YC2B(Y,Cb,Cr) (Y + 1.772*Cb)
@@ -22,7 +22,7 @@
 #define RGB2Cb(R,G,B) (-0.169*R - 0.331*G + 0.500*B)
 #define RGB2Cr(R,G,B) (0.500*R - 0.419*G - 0.081*B)
 
-// YCbCr‚©‚çRGB‚É•ÏŠ·
+// YCbCrã‹ã‚‰RGBã«å¤‰æ›
 inline void my_yc2rgb(int Y,int Cb,int Cr,int *R,int *G,int *B) {
 	*R = (int)YC2R(Y,Cb,Cr);
 	*G = (int)YC2G(Y,Cb,Cr);
@@ -34,7 +34,7 @@ inline void my_yc2rgb(int Y,int Cb,int Cr,short *R,short *G,short *B) {
 	*B = (short)YC2B(Y,Cb,Cr);
 }
 
-// RGB‚©‚çYCbCr‚É•ÏŠ·
+// RGBã‹ã‚‰YCbCrã«å¤‰æ›
 inline void my_rgb2yc(int R,int G,int B,int *Y,int *Cb,int *Cr) {
 	*Y = (int)RGB2Y(R,G,B);
 	*Cb = (int)RGB2Cb(R,G,B);
@@ -46,10 +46,10 @@ inline void my_rgb2yc(int R,int G,int B,short *Y,short *Cb,short *Cr) {
 	*Cr = (short)RGB2Cr(R,G,B);
 }
 
-int my_getbuild(FILTER *fp,void *editp);		// AviUtl‚ÌBuild”Ô†‚Ìæ“¾(0.99e2ˆÈ~)
-HFONT my_getfont(FILTER *fp,void *editp);		// AviUtl‚ÌƒtƒHƒ“ƒg‚Ìæ“¾
-int my_numthreads(FILTER *fp);					// AviUtl‚ÌƒXƒŒƒbƒh”‚ğæ“¾
-bool my_sjis(char *chr,int pos);				// SJIS‚Ì1•¶š–Ú”»’è
-void my_getpath(char *path,int length);			// ƒpƒX–¼‚Ì’Šoiƒtƒ@ƒCƒ‹–¼‚Ì‘O‚Ü‚Åj
-void my_getexepath(char *path,int length);		// AviUtl‚Ì‚ ‚éƒpƒX–¼‚Ìæ“¾
-void my_getaufpath(FILTER *fp,char *path,int length);	// ƒvƒ‰ƒOƒCƒ“‚Ì‚ ‚éƒpƒX–¼‚Ìæ“¾
+int my_getbuild(FILTER *fp,void *editp);		// AviUtlã®Buildç•ªå·ã®å–å¾—(0.99e2ä»¥é™)
+HFONT my_getfont(FILTER *fp,void *editp);		// AviUtlã®ãƒ•ã‚©ãƒ³ãƒˆã®å–å¾—
+int my_numthreads(FILTER *fp);					// AviUtlã®ã‚¹ãƒ¬ãƒƒãƒ‰æ•°ã‚’å–å¾—
+bool my_sjis(char *chr,int pos);				// SJISã®1æ–‡å­—ç›®åˆ¤å®š
+void my_getpath(char *path,int length);			// ãƒ‘ã‚¹åã®æŠ½å‡ºï¼ˆãƒ•ã‚¡ã‚¤ãƒ«åã®å‰ã¾ã§ï¼‰
+void my_getexepath(char *path,int length);		// AviUtlã®ã‚ã‚‹ãƒ‘ã‚¹åã®å–å¾—
+void my_getaufpath(FILTER *fp,char *path,int length);	// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚ã‚‹ãƒ‘ã‚¹åã®å–å¾—

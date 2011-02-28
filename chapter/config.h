@@ -1,5 +1,5 @@
-//---------------------------------------------------------------------
-//		ƒvƒ‰ƒOƒCƒ“İ’èƒwƒbƒ_ƒtƒ@ƒCƒ‹
+ï»¿//---------------------------------------------------------------------
+//		ãƒ—ãƒ©ã‚°ã‚¤ãƒ³è¨­å®šãƒ˜ãƒƒãƒ€ãƒ•ã‚¡ã‚¤ãƒ«
 //---------------------------------------------------------------------
 #include <windows.h>
 #include <stdio.h>
@@ -7,14 +7,14 @@
 #include <string>
 #include "filter.h"
 
-#define NUMHIS 30	// •Û‘¶‚·‚é—š—ğ‚Ì”
-#define STRLEN 256	// •¶š—ñ‚ÌÅ‘å’·
+#define NUMHIS 30	// ä¿å­˜ã™ã‚‹å±¥æ­´ã®æ•°
+#define STRLEN 256	// æ–‡å­—åˆ—ã®æœ€å¤§é•·
 
 class CfgDlg;
 
 typedef struct 
 {
-	// ƒ`ƒƒƒvƒ^”‚Í‘®ãÅ‘å100ŒÂ‚Ü‚Å
+	// ãƒãƒ£ãƒ—ã‚¿æ•°ã¯æ›¸å¼ä¸Šæœ€å¤§100å€‹ã¾ã§
 	int m_numChapter;
 	int m_Frame[100];
 	char m_strTitle[100][STRLEN];
@@ -64,9 +64,9 @@ public:
 	void AutoSaveCheck();
 	int GetSCPos(int moveto, int frames);
 
-	//[ru]ŠÖ”’Ç‰Á
+	//[ru]é–¢æ•°è¿½åŠ 
 	void DetectMute();
-	//‚±‚±‚Ü‚Å
+	//ã“ã“ã¾ã§
 
 	void UpdateFramePos();
 };

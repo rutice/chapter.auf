@@ -1,5 +1,5 @@
-//----------------------------------------------------------------------------------
-//		ƒ`ƒƒƒvƒ^[•ÒWƒvƒ‰ƒOƒCƒ“ by ‚Û‚Ş 
+ï»¿//----------------------------------------------------------------------------------
+//		ãƒãƒ£ãƒ—ã‚¿ãƒ¼ç·¨é›†ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ by ã½ã‚€ 
 //----------------------------------------------------------------------------------
 #include <windows.h>
 #include <imm.h>
@@ -8,12 +8,12 @@
 #include "mylib.h"
 
 //---------------------------------------------------------------------
-//		ƒtƒBƒ‹ƒ^\‘¢‘Ì’è‹`
+//		ãƒ•ã‚£ãƒ«ã‚¿æ§‹é€ ä½“å®šç¾©
 //---------------------------------------------------------------------
 FILTER_DLL filter = {
 	FILTER_FLAG_ALWAYS_ACTIVE|FILTER_FLAG_MAIN_MESSAGE|FILTER_FLAG_WINDOW_SIZE|FILTER_FLAG_DISP_FILTER|FILTER_FLAG_EX_INFORMATION,	// int flag
 	567,435,	// int x,y
-	"ƒ`ƒƒƒvƒ^[•ÒW",	// TCHAR *name
+	"ãƒãƒ£ãƒ—ã‚¿ãƒ¼ç·¨é›†",	// TCHAR *name
 	NULL,NULL,NULL,	// int track_n, TCHAR **track_name, int *track_default
 	NULL,NULL,	// int *track_s, *track_e
 	NULL,NULL,NULL,	// int check_n, TCHAR **check_name, int *check_default
@@ -25,7 +25,7 @@ FILTER_DLL filter = {
 	NULL,NULL,	// reserved
 	NULL,	// void *ex_data_ptr
 	NULL,	// int ex_data_size
-	"ƒ`ƒƒƒvƒ^[•ÒW ver0.6 by ‚Û‚Ş + –³‰¹•ƒV[ƒ“ƒ`ƒFƒ“ƒWŒŸõ‹@”\ by ru + íœ’Ç] by fe",	// TCHAR *information
+	"ãƒãƒ£ãƒ—ã‚¿ãƒ¼ç·¨é›† ver0.6 by ã½ã‚€ + ç„¡éŸ³ï¼†ã‚·ãƒ¼ãƒ³ãƒã‚§ãƒ³ã‚¸æ¤œç´¢æ©Ÿèƒ½ by ru + å‰Šé™¤è¿½å¾“ by fe",	// TCHAR *information
 	func_save_start,	// (*func_save_start)
 	NULL,	// (*func_save_end)
 	NULL,	// EXFUNC *exfunc;
@@ -40,7 +40,7 @@ FILTER_DLL filter = {
 };
 
 //---------------------------------------------------------------------
-//		•Ï”
+//		å¤‰æ•°
 //---------------------------------------------------------------------
 CfgDlg	g_config;
 PrfDat	g_prf;
@@ -50,7 +50,7 @@ HWND	g_hwnd;
 int		g_keyhook;
 
 //---------------------------------------------------------------------
-//		ƒtƒBƒ‹ƒ^\‘¢‘Ì‚Ìƒ|ƒCƒ“ƒ^‚ğ“n‚·ŠÖ”
+//		ãƒ•ã‚£ãƒ«ã‚¿æ§‹é€ ä½“ã®ãƒã‚¤ãƒ³ã‚¿ã‚’æ¸¡ã™é–¢æ•°
 //---------------------------------------------------------------------
 EXTERN_C FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTable( void )
 {
@@ -58,7 +58,7 @@ EXTERN_C FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTable( void )
 }
 
 //---------------------------------------------------------------------
-//		YUY2ƒtƒBƒ‹ƒ^\‘¢‘Ì‚Ìƒ|ƒCƒ“ƒ^‚ğ“n‚·ŠÖ”
+//		YUY2ãƒ•ã‚£ãƒ«ã‚¿æ§‹é€ ä½“ã®ãƒã‚¤ãƒ³ã‚¿ã‚’æ¸¡ã™é–¢æ•°
 //---------------------------------------------------------------------
 EXTERN_C FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTableYUY2( void )
 {
@@ -81,9 +81,9 @@ LRESULT CALLBACK KeyboardProc(int nCode,WPARAM wParam,LPARAM lParam)
 {
 	static int ime = 0;
 
-	// EnterƒL[‚Å“ü—Í
+	// Enterã‚­ãƒ¼ã§å…¥åŠ›
 	if (!g_keyhook && nCode == HC_ACTION && wParam == 0x0D && GetForegroundWindow() == g_hwnd) {
-		// IME‚Å‚ÌEnter‚ğ–³‹‚·‚é
+		// IMEã§ã®Enterã‚’ç„¡è¦–ã™ã‚‹
 		HIMC hIMC = ImmGetContext(g_hwnd);
 		if(ImmGetOpenStatus(hIMC) && ImmGetCompositionString(hIMC, GCS_COMPSTR, NULL, 0)) ime = 2;
 		ImmReleaseContext(g_hwnd,hIMC);
@@ -93,7 +93,7 @@ LRESULT CALLBACK KeyboardProc(int nCode,WPARAM wParam,LPARAM lParam)
 		}
 	}
 	if(ime) ime--;
-	if(g_keyhook) g_keyhook--;	// ƒ_ƒCƒAƒƒO‚Å‚ÌEnter‚ğ–³‹‚·‚é‚Ì‚Ég‚¤
+	if(g_keyhook) g_keyhook--;	// ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã§ã®Enterã‚’ç„¡è¦–ã™ã‚‹ã®ã«ä½¿ã†
 
 	return CallNextHookEx(g_hHook,nCode,wParam,lParam);
 }
@@ -102,7 +102,7 @@ LRESULT CALLBACK WindowMessageProc(int nCode, WPARAM wp, LPARAM lp)
 {
 	if(nCode == HC_ACTION){
 		MSG* msg = (MSG*)lp;
-		//ƒtƒŒ[ƒ€íœ‚ªŒÄ‚Î‚ê‚½‚çˆ—
+		//ãƒ•ãƒ¬ãƒ¼ãƒ å‰Šé™¤ãŒå‘¼ã°ã‚ŒãŸã‚‰å‡¦ç†
 		if(wp == PM_REMOVE && msg->message == WM_COMMAND && LOWORD(msg->wParam) == 0x13ED){
 			g_config.UpdateFramePos();
 		}
@@ -129,20 +129,20 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 			UnhookWindowsHookEx(g_hMessageHook);
 			UnhookWindowsHookEx(g_hHook);
 			break;
-		case WM_FILTER_UPDATE:	//•ÒW‘€ì
+		case WM_FILTER_UPDATE:	//ç·¨é›†æ“ä½œ
 			g_config.SetFrame(fp->exfunc->get_frame(editp));
 			g_config.SetFrameN(editp,fp->exfunc->get_frame_n(editp));
 			break;
-		case WM_FILTER_FILE_OPEN:	//ƒtƒ@ƒCƒ‹“Ç‚İ‚İ
+		case WM_FILTER_FILE_OPEN:	//ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿
 			if(fp->exfunc->get_file_info(editp,&fip)) g_config.SetFps(fip.video_rate,fip.video_scale);
 			g_config.SetFrameN(editp,fp->exfunc->get_frame_n(editp));
 			break;
-		//[ru]•Â‚¶‚½‚Æ‚«
+		//[ru]é–‰ã˜ãŸã¨ã
 		case WM_FILTER_FILE_CLOSE:
 			g_config.SetFrameN(NULL, 0);
 			g_config.SetFps(10, 10);
 			break;
-		//‚±‚±‚Ü‚Å
+		//ã“ã“ã¾ã§
 		case WM_COMMAND:
 			switch(LOWORD(wparam)) {
 				case IDC_BUADD:
@@ -164,18 +164,18 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 					g_keyhook = 1;
 					break;
 				case IDC_CHECK1:
-				//[ru]‚Â‚¢‚Å‚É
+				//[ru]ã¤ã„ã§ã«
 				case IDC_CHECKSC:
-				//‚±‚±‚Ü‚Å
+				//ã“ã“ã¾ã§
 				case IDC_SCMARK:
 				case IDC_PRECHECK:
 					g_config.AutoSaveCheck();
 					break;
-				//[ru]’Ç‰Á
+				//[ru]è¿½åŠ 
 				case IDC_BUDETECT:
 					g_config.DetectMute();
 					break;
-				//‚±‚±‚Ü‚Å
+				//ã“ã“ã¾ã§
 			}
 			break;
 	}
@@ -187,7 +187,7 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 //---------------------------------------------------------------------
 BOOL func_project_save( FILTER *fp,void *editp,void *data,int *size ) {
 	*size = sizeof(PrfDat);
-	if(data == NULL) return TRUE;	// ‚±‚ÌŠÖ”‚Í2‰ñŒÄ‚Î‚ê‚é
+	if(data == NULL) return TRUE;	// ã“ã®é–¢æ•°ã¯2å›å‘¼ã°ã‚Œã‚‹
 
 	g_prf.m_numChapter = g_config.m_numChapter;
 	CopyMemory(g_prf.m_Frame,g_config.m_Frame,sizeof(int)*100);

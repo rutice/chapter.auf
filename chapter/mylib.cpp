@@ -1,11 +1,11 @@
-//---------------------------------------------------------------------
-//		©•ª—p‚Ì“K“–‚Èƒ‰ƒCƒuƒ‰ƒŠ by ‚Û‚Ş
+ï»¿//---------------------------------------------------------------------
+//		è‡ªåˆ†ç”¨ã®é©å½“ãªãƒ©ã‚¤ãƒ–ãƒ©ãƒª by ã½ã‚€
 //---------------------------------------------------------------------
 #include <windows.h>
 #include "filter.h"
 #include "mylib.h"
 
-// AviUtl‚ÌBuild”Ô†‚Ìæ“¾(0.99e2ˆÈ~)
+// AviUtlã®Buildç•ªå·ã®å–å¾—(0.99e2ä»¥é™)
 int my_getbuild(FILTER *fp,void *editp) {
 	SYS_INFO sip;
 
@@ -13,7 +13,7 @@ int my_getbuild(FILTER *fp,void *editp) {
 	return sip.build < VER_99e2 ? 0 : sip.build;
 }
 
-// AviUtl‚ÌƒtƒHƒ“ƒg‚Ìæ“¾
+// AviUtlã®ãƒ•ã‚©ãƒ³ãƒˆã®å–å¾—
 HFONT my_getfont(FILTER *fp,void *editp) {
 	SYS_INFO sip;
 
@@ -21,7 +21,7 @@ HFONT my_getfont(FILTER *fp,void *editp) {
 	return sip.hfont ? sip.hfont : (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 }
 
-// AviUtl‚ÌƒXƒŒƒbƒh”‚ğæ“¾
+// AviUtlã®ã‚¹ãƒ¬ãƒƒãƒ‰æ•°ã‚’å–å¾—
 void my_multi_thread_func(int thread_id,int thread_num,void *param1,void *param2){
 	int *threads = (int *) param1;
 	*threads = thread_num;
@@ -34,7 +34,7 @@ int my_numthreads(FILTER *fp) {
 	return num_threads;
 }
 
-// SJIS‚Ì1•¶š–Ú”»’è
+// SJISã®1æ–‡å­—ç›®åˆ¤å®š
 bool my_sjis(char *chr,int pos) {
 	PUCHAR chr2 = (PUCHAR)chr;
 	UCHAR c;
@@ -45,7 +45,7 @@ bool my_sjis(char *chr,int pos) {
 	return false;
 }
 
-// ƒpƒX–¼‚Ì’Šoiƒtƒ@ƒCƒ‹–¼‚Ì‘O‚Ü‚Åj
+// ãƒ‘ã‚¹åã®æŠ½å‡ºï¼ˆãƒ•ã‚¡ã‚¤ãƒ«åã®å‰ã¾ã§ï¼‰
 void my_getpath(char *path,int length) {
 	int pos = 0;
 
@@ -57,13 +57,13 @@ void my_getpath(char *path,int length) {
 	path[pos+1] = NULL;
 }
 
-// AviUtl‚Ì‚ ‚éƒpƒX–¼‚Ìæ“¾
+// AviUtlã®ã‚ã‚‹ãƒ‘ã‚¹åã®å–å¾—
 void my_getexepath(char *path,int length) {
 	GetModuleFileName(NULL,path,length);
 	my_getpath(path,length);
 }
 
-// ƒvƒ‰ƒOƒCƒ“‚Ì‚ ‚éƒpƒX–¼‚Ìæ“¾
+// ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®ã‚ã‚‹ãƒ‘ã‚¹åã®å–å¾—
 void my_getaufpath(FILTER *fp,char *path,int length) {
 	GetModuleFileName(fp->dll_hinst,path,length);
 	my_getpath(path,length);

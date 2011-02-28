@@ -1,4 +1,4 @@
-//{{NO_DEPENDENCIES}}
+Ôªø//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 // Used by chapter.rc
 //
@@ -16,14 +16,14 @@
 #define IDC_CHECK1                      1015
 #define IDC_STATIC2                     1014
 
-//[ru]í«â¡
+//[ru]ËøΩÂä†
 #define IDC_BUDETECT                    1020
 #define IDC_EDITSERI                    1021
 #define IDC_EDITMUTE                    1022
 #define IDC_CHECKSC                     1023
 #define IDC_STATICa                     1031
 #define IDC_STATICb                     1032
-//Ç±Ç±Ç‹Ç≈
+//„Åì„Åì„Åæ„Åß
 #define IDC_PRECHECK                    1024
 #define IDC_SCMARK                      1025
 

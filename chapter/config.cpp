@@ -1,12 +1,12 @@
-//---------------------------------------------------------------------
-//		ƒvƒ‰ƒOƒCƒ“İ’è
+ï»¿//---------------------------------------------------------------------
+//		ãƒ—ãƒ©ã‚°ã‚¤ãƒ³è¨­å®š
 //---------------------------------------------------------------------
 #include <windows.h>
 #include <commctrl.h>
 #include <cstdio>
 #include <process.h>
-#include <time.h>	//[ru]’Ç‰Á
-#include <emmintrin.h> //[ru] ’Ç‰Á
+#include <time.h>	//[ru]è¿½åŠ 
+#include <emmintrin.h> //[ru] è¿½åŠ 
 #include "resource.h"
 #include "config.h"
 #include "mylib.h"
@@ -18,7 +18,7 @@
 //#pragma comment(lib, "libfaad.lib")
 #endif
 
-//[ru]Œv‘ªƒNƒ‰ƒX
+//[ru]è¨ˆæ¸¬ã‚¯ãƒ©ã‚¹
 //#define CHECKSPEED
 #ifdef CHECKSPEED
 class QPC {
@@ -61,7 +61,7 @@ public:
 	double get() { return 0.0;}
 };
 #endif
-//‚±‚±‚Ü‚Å
+//ã“ã“ã¾ã§
 
 void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	HFONT hfont,hfont2;
@@ -79,11 +79,11 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	m_hDlg = hwnd;
 	m_loadfile = false;
 
-	// ƒtƒHƒ“ƒg
+	// ãƒ•ã‚©ãƒ³ãƒˆ
 	hfont2 = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-	hfont = my_getfont(fp,editp);	// AviUtlƒfƒtƒHƒ‹ƒgƒtƒHƒ“ƒg
+	hfont = my_getfont(fp,editp);	// AviUtlãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ•ã‚©ãƒ³ãƒˆ
 
-	// ƒEƒCƒ“ƒhƒE‚Ìì¬i•”•i’Ç‰Áj
+	// ã‚¦ã‚¤ãƒ³ãƒ‰ã‚¦ã®ä½œæˆï¼ˆéƒ¨å“è¿½åŠ ï¼‰
 	SendMessage(hwnd,WM_SETFONT,(WPARAM)hfont,0);
 	CreateWindowEx(WS_EX_CLIENTEDGE,"LISTBOX","",WS_CHILD|WS_VISIBLE|LBS_NOTIFY|WS_VSCROLL|WS_TABSTOP,14,12,448,335,hwnd,(HMENU)IDC_LIST1,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_LIST1,WM_SETFONT,(WPARAM)hfont,0);
@@ -91,45 +91,45 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	SendDlgItemMessage(hwnd,IDC_EDTIME,WM_SETFONT,(WPARAM)hfont,0);
 	CreateWindowEx(WS_EX_CLIENTEDGE,"COMBOBOX","",WS_CHILD|WS_VISIBLE|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP,48,380,417,120,hwnd,(HMENU)IDC_EDNAME,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDNAME,WM_SETFONT,(WPARAM)hfont2,0);
-	CreateWindow("BUTTON","•Û‘¶",WS_CHILD|WS_VISIBLE,480,12,73,22,hwnd,(HMENU)IDC_BUSAVE,hinst,0);
+	CreateWindow("BUTTON","ä¿å­˜",WS_CHILD|WS_VISIBLE,480,12,73,22,hwnd,(HMENU)IDC_BUSAVE,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUSAVE,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","“Ç",WS_CHILD|WS_VISIBLE,480,51,73,22,hwnd,(HMENU)IDC_BULOAD,hinst,0);
+	CreateWindow("BUTTON","èª­è¾¼",WS_CHILD|WS_VISIBLE,480,51,73,22,hwnd,(HMENU)IDC_BULOAD,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BULOAD,WM_SETFONT,(WPARAM)hfont,0);
-	//[ru]ƒ{ƒ^ƒ“’Ç‰Á
-	CreateWindow("BUTTON","–³‰¹•”•ª",WS_CHILD|WS_VISIBLE,480,130,73,22,hwnd,(HMENU)IDC_BUDETECT,hinst,0);
+	//[ru]ãƒœã‚¿ãƒ³è¿½åŠ 
+	CreateWindow("BUTTON","ç„¡éŸ³éƒ¨åˆ†",WS_CHILD|WS_VISIBLE,480,130,73,22,hwnd,(HMENU)IDC_BUDETECT,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUDETECT,WM_SETFONT,(WPARAM)hfont,0);
 	
-	CreateWindow("STATIC","˜A‘±",WS_CHILD|WS_VISIBLE,480,160,73,22,hwnd,(HMENU)IDC_STATICa,hinst,0);
+	CreateWindow("STATIC","é€£ç¶š",WS_CHILD|WS_VISIBLE,480,160,73,22,hwnd,(HMENU)IDC_STATICa,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATICa,WM_SETFONT,(WPARAM)hfont,0);
 	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,520,160,33,22,hwnd,(HMENU)IDC_EDITSERI,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDITSERI,WM_SETFONT,(WPARAM)hfont,0);
 
-	CreateWindow("STATIC","è‡’l",WS_CHILD|WS_VISIBLE,480,190,73,22,hwnd,(HMENU)IDC_STATICb,hinst,0);
+	CreateWindow("STATIC","é–¾å€¤",WS_CHILD|WS_VISIBLE,480,190,73,22,hwnd,(HMENU)IDC_STATICb,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATICb,WM_SETFONT,(WPARAM)hfont,0);
 	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,520,190,33,22,hwnd,(HMENU)IDC_EDITMUTE,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDITMUTE,WM_SETFONT,(WPARAM)hfont,0);
 	
-	CreateWindow("BUTTON","SCˆÊ’u",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,215,73,22,hwnd,(HMENU)IDC_CHECKSC,hinst,0);
+	CreateWindow("BUTTON","SCä½ç½®",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,215,73,22,hwnd,(HMENU)IDC_CHECKSC,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_CHECKSC,WM_SETFONT,(WPARAM)hfont,0);
-	//--‚±‚±‚Ü‚Å
-	CreateWindow("BUTTON","‘SSCŒŸo",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,240,90,22,hwnd,(HMENU)IDC_PRECHECK,hinst,0);
+	//--ã“ã“ã¾ã§
+	CreateWindow("BUTTON","å…¨SCæ¤œå‡º",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,240,90,22,hwnd,(HMENU)IDC_PRECHECK,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_PRECHECK,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","mark•t—^",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,265,90,22,hwnd,(HMENU)IDC_SCMARK,hinst,0);
+	CreateWindow("BUTTON","markä»˜ä¸",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,265,90,22,hwnd,(HMENU)IDC_SCMARK,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_SCMARK,WM_SETFONT,(WPARAM)hfont,0);
 
 
-	CreateWindow("BUTTON","íœ",WS_CHILD|WS_VISIBLE,480,346,73,22,hwnd,(HMENU)IDC_BUDEL,hinst,0);
+	CreateWindow("BUTTON","å‰Šé™¤",WS_CHILD|WS_VISIBLE,480,346,73,22,hwnd,(HMENU)IDC_BUDEL,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUDEL,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","’Ç‰Á",WS_CHILD|WS_VISIBLE,480,377,73,22,hwnd,(HMENU)IDC_BUADD,hinst,0);
+	CreateWindow("BUTTON","è¿½åŠ ",WS_CHILD|WS_VISIBLE,480,377,73,22,hwnd,(HMENU)IDC_BUADD,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUADD,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("STATIC","ŠÔ",WS_CHILD|WS_VISIBLE,12,351,31,17,hwnd,(HMENU)IDC_STATIC1,hinst,0);
+	CreateWindow("STATIC","æ™‚é–“",WS_CHILD|WS_VISIBLE,12,351,31,17,hwnd,(HMENU)IDC_STATIC1,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATIC1,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("STATIC","–¼Ì",WS_CHILD|WS_VISIBLE,12,384,31,17,hwnd,(HMENU)IDC_STATIC2,hinst,0);
+	CreateWindow("STATIC","åç§°",WS_CHILD|WS_VISIBLE,12,384,31,17,hwnd,(HMENU)IDC_STATIC2,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATIC2,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","©“®o—Í",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,90,73,22,hwnd,(HMENU)IDC_CHECK1,hinst,0);
+	CreateWindow("BUTTON","è‡ªå‹•å‡ºåŠ›",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,90,73,22,hwnd,(HMENU)IDC_CHECK1,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_CHECK1,WM_SETFONT,(WPARAM)hfont,0);
 
-	// ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚É—š—ğ’Ç‰Á
+	// ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã«å±¥æ­´è¿½åŠ 
 	for(int n = 0;n < NUMHIS;n++) {
 		sprintf_s(str,STRLEN,"history%d",n);
 		m_exfunc->ini_load_str(fp,str,m_strHis[n],NULL);
@@ -137,11 +137,11 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	}
 	AddHis();
 
-	// ©“®o—Í‚Ìƒ`ƒFƒbƒNƒ{ƒbƒNƒX
+	// è‡ªå‹•å‡ºåŠ›ã®ãƒã‚§ãƒƒã‚¯ãƒœãƒƒã‚¯ã‚¹
 	m_autosave = m_exfunc->ini_load_int(fp,"autosave",0);
 	CheckDlgButton(hwnd, IDC_CHECK1, m_autosave);
 
-	//[ru]İ’è‚ğ“Ç‚İ‚Ş
+	//[ru]è¨­å®šã‚’èª­ã¿è¾¼ã‚€
 	int seri = m_exfunc->ini_load_int(fp, "muteCount", 10);
 	sprintf_s(str, STRLEN, "%d", seri);
 	SetDlgItemText(hwnd, IDC_EDITSERI, str);
@@ -153,15 +153,15 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	CheckDlgButton(hwnd, IDC_CHECKSC, m_exfunc->ini_load_int(fp,"sceneChange", 1));
 	CheckDlgButton(hwnd, IDC_PRECHECK, m_exfunc->ini_load_int(fp,"PrecheckSC", 0));
 	CheckDlgButton(hwnd, IDC_SCMARK, m_exfunc->ini_load_int(fp,"SCMark", 0));
-	//‚±‚±‚Ü‚Å
+	//ã“ã“ã¾ã§
 }
 
 void CfgDlg::AutoSaveCheck() {
 	m_autosave = IsDlgButtonChecked(m_fp->hwnd,IDC_CHECK1);
 	m_exfunc->ini_save_int(m_fp,"autosave",m_autosave);
-	//[ru]•Û‘¶
+	//[ru]ä¿å­˜
 	m_exfunc->ini_save_int(m_fp,"sceneChange", IsDlgButtonChecked(m_fp->hwnd, IDC_CHECKSC));
-	//‚±‚±‚Ü‚Å
+	//ã“ã“ã¾ã§
 	m_exfunc->ini_save_int(m_fp,"PrecheckSC", IsDlgButtonChecked(m_fp->hwnd, IDC_PRECHECK));
 	m_exfunc->ini_save_int(m_fp,"SCMark", IsDlgButtonChecked(m_fp->hwnd, IDC_SCMARK));
 }
@@ -202,7 +202,7 @@ void CfgDlg::AddHis() {
 	GetDlgItemText(m_hDlg,IDC_EDNAME,str,STRLEN);
 	SetDlgItemText(m_hDlg,IDC_EDNAME,"");
 
-	//—š—ğ‚É“¯‚¶•¶š—ñ‚ª‚ ‚ê‚Î—š—ğ‚©‚çíœ
+	//å±¥æ­´ã«åŒã˜æ–‡å­—åˆ—ãŒã‚ã‚Œã°å±¥æ­´ã‹ã‚‰å‰Šé™¤
 	for(int n = 0;n < m_numHis;n++) {
 		if(strcmp(str,m_strHis[n]) == 0) {
 			for(int i = n;i < m_numHis - 1;i++) memcpy(m_strHis[i],m_strHis[i+1],STRLEN);
@@ -211,7 +211,7 @@ void CfgDlg::AddHis() {
 		}
 	}
 
-	//—š—ğ‚É’Ç‰Á
+	//å±¥æ­´ã«è¿½åŠ 
 	if(str[0] != 0) {
 		for(int n = NUMHIS - 1 ;n > 0;n--) memcpy(m_strHis[n],m_strHis[n-1],STRLEN);
 		strcpy_s(m_strHis[0],STRLEN,str);
@@ -219,13 +219,13 @@ void CfgDlg::AddHis() {
 	}
 	if(m_numHis > NUMHIS) m_numHis = NUMHIS;
 
-	//ƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Ì•\¦XV
+	//ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹ã®è¡¨ç¤ºæ›´æ–°
 	while(SendDlgItemMessage(m_hDlg,IDC_EDNAME,CB_GETCOUNT,0,0)) {SendDlgItemMessage(m_hDlg,IDC_EDNAME,CB_DELETESTRING,0,0);}
 	for(int n = 0;n < m_numHis;n++) {
 		SendDlgItemMessage(m_hDlg,IDC_EDNAME,CB_ADDSTRING,0L,(LPARAM)m_strHis[n]);
 	}
 
-	//ini‚É—š—ğ‚ğ•Û‘¶
+	//iniã«å±¥æ­´ã‚’ä¿å­˜
 	for(int n = 0;n < NUMHIS;n++) {
 		sprintf_s(str,STRLEN,"history%d",n);
 		m_exfunc->ini_save_str(m_fp,str,m_strHis[n]);
@@ -236,14 +236,14 @@ void CfgDlg::AddList() {
 	char str[STRLEN];
 	int ins;
 
-	if(m_loadfile == false) return;	//ƒtƒ@ƒCƒ‹‚ª“Ç‚İ‚Ü‚ê‚Ä‚¢‚È‚¢
+	if(m_loadfile == false) return;	//ãƒ•ã‚¡ã‚¤ãƒ«ãŒèª­ã¿è¾¼ã¾ã‚Œã¦ã„ãªã„
 	if(m_numChapter > 99) return;
 
 	GetDlgItemText(m_hDlg,IDC_EDNAME,str,STRLEN);
-	if(str[0] == NULL) return;	//ƒ^ƒCƒgƒ‹‚ª“ü—Í‚³‚ê‚Ä‚¢‚È‚¢
+	if(str[0] == NULL) return;	//ã‚¿ã‚¤ãƒˆãƒ«ãŒå…¥åŠ›ã•ã‚Œã¦ã„ãªã„
 
 	for(ins = 0;ins < m_numChapter;ins++) {
-		if(m_Frame[ins] == m_frame) return;	//ƒ^ƒCƒ€ƒR[ƒh‚ªd•¡‚µ‚Ä‚¢‚é
+		if(m_Frame[ins] == m_frame) return;	//ã‚¿ã‚¤ãƒ ã‚³ãƒ¼ãƒ‰ãŒé‡è¤‡ã—ã¦ã„ã‚‹
 		if(m_Frame[ins] > m_frame) break;
 	}
 	for(int n = m_numChapter;n > ins;n--) {
@@ -266,8 +266,8 @@ void CfgDlg::DelList() {
 	sel = SendDlgItemMessage(m_hDlg,IDC_LIST1,LB_GETCURSEL,0,0);
 	if(sel == LB_ERR) return;
 
-	if(m_loadfile == false) return;	//ƒtƒ@ƒCƒ‹‚ª“Ç‚İ‚Ü‚ê‚Ä‚¢‚È‚¢
-	if(m_numChapter <= sel) return; //ƒAƒCƒeƒ€‚ª‚È‚¢
+	if(m_loadfile == false) return;	//ãƒ•ã‚¡ã‚¤ãƒ«ãŒèª­ã¿è¾¼ã¾ã‚Œã¦ã„ãªã„
+	if(m_numChapter <= sel) return; //ã‚¢ã‚¤ãƒ†ãƒ ãŒãªã„
 
 	m_numChapter--;
 	for(int n = sel;n < m_numChapter;n++) {
@@ -278,9 +278,9 @@ void CfgDlg::DelList() {
 	ShowList();
 }
 
-//[ru]IIR_3DNR‚æ‚è”qØ
+//[ru]IIR_3DNRã‚ˆã‚Šæ‹å€Ÿ
 //---------------------------------------------------------------------
-//		‹P“x‚ğ8ƒrƒbƒg‚ÉƒVƒtƒg‚·‚éŠÖ”
+//		è¼åº¦ã‚’8ãƒ“ãƒƒãƒˆã«ã‚·ãƒ•ãƒˆã™ã‚‹é–¢æ•°
 //---------------------------------------------------------------------
 void shift_to_eight_bit( PIXEL_YC* ycp, unsigned char* luma, int w, int max_w, int h )
 {
@@ -358,9 +358,9 @@ void shift_to_eight_bit_sse( PIXEL_YC* ycp, unsigned char* luma, int w, int max_
 #define FRAME_PICTURE	1
 #define FIELD_PICTURE	2
 int mvec(unsigned char* current_pix,unsigned char* bef_pix,int lx,int ly,int threshold,int pict_struct);
-//‚±‚±‚Ü‚Å
+//ã“ã“ã¾ã§
 
-//[ru]‹P“x‚Ì•½‹Ï‚¾‚¯‚Å”»’è‚µ‚Ä‚İ‚éƒeƒXƒg
+//[ru]è¼åº¦ã®å¹³å‡ã ã‘ã§åˆ¤å®šã—ã¦ã¿ã‚‹ãƒ†ã‚¹ãƒˆ
 int ave_y(PIXEL_YC *pyc, int w, int h) {
 	unsigned int ave = 0;
 	int skip_w = w % 4;
@@ -379,29 +379,29 @@ int ave_y(PIXEL_YC *pyc, int w, int h) {
 	}
 	return ave;
 }
-//‚±‚±‚Ü‚Å
+//ã“ã“ã¾ã§
 
-//[ru] ƒWƒƒƒ“ƒvƒEƒBƒ“ƒhƒEXV
+//[ru] ã‚¸ãƒ£ãƒ³ãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦æ›´æ–°
 BOOL searchJump(HWND hWnd, LPARAM lParam) {
 	TCHAR buf[1024];
 	TCHAR frames[2][100];
 	sprintf_s(frames[0], "/ %d ]", lParam);
 	sprintf_s(frames[1], "/ %d ]", lParam-1);
 	if (GetWindowText(hWnd, buf, 1024)) {
-		// ‚Ü‚¸ƒWƒƒƒ“ƒvƒEƒBƒ“ƒhƒE‚ğ’T‚·
-		if (strncmp(buf, "ƒWƒƒƒ“ƒvƒEƒBƒ“ƒhƒE", 18) == 0) {
-			// Ÿ‚É‘ƒtƒŒ[ƒ€”‚ªˆê’v‚µ‚Ä‚¢‚é‚Ì‚ğ’T‚·
+		// ã¾ãšã‚¸ãƒ£ãƒ³ãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’æ¢ã™
+		if (strncmp(buf, "ã‚¸ãƒ£ãƒ³ãƒ—ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦", 18) == 0) {
+			// æ¬¡ã«ç·ãƒ•ãƒ¬ãƒ¼ãƒ æ•°ãŒä¸€è‡´ã—ã¦ã„ã‚‹ã®ã‚’æ¢ã™
 			if (strstr(buf, frames[0]) || strstr(buf, frames[1])) {
-				// ‚İ‚Á‚¯‚½
+				// ã¿ã£ã‘ãŸ
 				if (IsWindowVisible(hWnd))
-					PostMessage(hWnd, WM_COMMAND, 0x9c6b, 0); // lParam‚Í‚È‚ñ‚¾‚Á‚¯EEE
+					PostMessage(hWnd, WM_COMMAND, 0x9c6b, 0); // lParamã¯ãªã‚“ã ã£ã‘ãƒ»ãƒ»ãƒ»
 				return FALSE;
 			}
 		}
 	}
 	return TRUE;
 }
-//‚±‚±‚Ü‚Å
+//ã“ã“ã¾ã§
 
 class CThreadProc
 {
@@ -410,7 +410,7 @@ protected:
 	HANDLE hNotify[2];
 	volatile bool bTerminate;
 
-	//ˆ——pƒpƒ‰ƒ[ƒ^
+	//å‡¦ç†ç”¨ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
 	unsigned char* pix1;
 	unsigned char* pix0;
 	int w, fi_w, h;
@@ -492,11 +492,11 @@ int CfgDlg::GetSCPos(int moveto, int frames)
 	int max_motion_frame = 0;
 
 #if 1
-	// “®‚«ƒxƒNƒgƒ‹‚ªÅ‘å’l‚ÌƒtƒŒ[ƒ€‚ğŒŸo
-	unsigned char* pix1 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ƒrƒbƒg‚ÉƒVƒtƒg‚µ‚½Œ»ƒtƒŒ[ƒ€‚Ì‹P“x‚ª‘ã“ü‚³‚ê‚é
-	unsigned char* pix0 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ƒrƒbƒg‚ÉƒVƒtƒg‚µ‚½‘OƒtƒŒ[ƒ€‚Ì‹P“x‚ª‘ã“ü‚³‚ê‚é
+	// å‹•ããƒ™ã‚¯ãƒˆãƒ«ãŒæœ€å¤§å€¤ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’æ¤œå‡º
+	unsigned char* pix1 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ãƒ“ãƒƒãƒˆã«ã‚·ãƒ•ãƒˆã—ãŸç¾ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ãŒä»£å…¥ã•ã‚Œã‚‹
+	unsigned char* pix0 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ãƒ“ãƒƒãƒˆã«ã‚·ãƒ•ãƒˆã—ãŸå‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ãŒä»£å…¥ã•ã‚Œã‚‹
 
-	//Œv‘ªƒ^ƒCƒ}
+	//è¨ˆæ¸¬ã‚¿ã‚¤ãƒ
 	QPC totalQPC;
 
 	totalQPC.start();
@@ -539,11 +539,11 @@ int CfgDlg::GetSCPos(int moveto, int frames)
 
 #else
 #if 1
-	// “®‚«ƒxƒNƒgƒ‹‚ªÅ‘å’l‚ÌƒtƒŒ[ƒ€‚ğŒŸo
-	unsigned char* pix1 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ƒrƒbƒg‚ÉƒVƒtƒg‚µ‚½Œ»ƒtƒŒ[ƒ€‚Ì‹P“x‚ª‘ã“ü‚³‚ê‚é
-	unsigned char* pix0 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ƒrƒbƒg‚ÉƒVƒtƒg‚µ‚½‘OƒtƒŒ[ƒ€‚Ì‹P“x‚ª‘ã“ü‚³‚ê‚é
+	// å‹•ããƒ™ã‚¯ãƒˆãƒ«ãŒæœ€å¤§å€¤ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’æ¤œå‡º
+	unsigned char* pix1 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ãƒ“ãƒƒãƒˆã«ã‚·ãƒ•ãƒˆã—ãŸç¾ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ãŒä»£å…¥ã•ã‚Œã‚‹
+	unsigned char* pix0 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ãƒ“ãƒƒãƒˆã«ã‚·ãƒ•ãƒˆã—ãŸå‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®è¼åº¦ãŒä»£å…¥ã•ã‚Œã‚‹
 
-	//Œv‘ªƒ^ƒCƒ}
+	//è¨ˆæ¸¬ã‚¿ã‚¤ãƒ
 	QPC totalQPC;
 	QPC sourceQPC;
 	QPC eightQPC;
@@ -586,7 +586,7 @@ int CfgDlg::GetSCPos(int moveto, int frames)
 	MessageBox(NULL, str, NULL, 0);
 #endif
 #else
-	// ‹P“x‚Ì•Ï‰»‚ªÅ‘å‚ÌƒtƒŒ[ƒ€‚ğŒŸo
+	// è¼åº¦ã®å¤‰åŒ–ãŒæœ€å¤§ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’æ¤œå‡º
 	PIXEL_YC *yc0 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, max(moveto-1, 0), 0);
 	int before_ave = yc0 != NULL ? ave_y(yc0, fi.w, fi.h) : 0;
 	for (int i=0; i<min(frames+5,200); i++) {
@@ -616,7 +616,7 @@ void CfgDlg::Seek() {
 	if(sel == LB_ERR) return;
 	if(m_Frame[sel] == m_frame) return;
 
-	//[ru] ƒV[ƒ“ƒ`ƒFƒ“ƒWŒŸo
+	//[ru] ã‚·ãƒ¼ãƒ³ãƒã‚§ãƒ³ã‚¸æ¤œå‡º
 	int frames = atoi(m_strTitle[sel]);
 	int moveto = m_Frame[sel];
 
@@ -630,7 +630,7 @@ void CfgDlg::Seek() {
 		EnumWindows((WNDENUMPROC)searchJump, (LPARAM)m_exfunc->get_frame_n(m_editp));
 		return;
 	}
-	//‚±‚±‚Ü‚Å
+	//ã“ã“ã¾ã§
 	m_exfunc->set_frame(m_editp,m_Frame[sel]);
 	SetDlgItemText(m_hDlg,IDC_EDNAME,m_strTitle[sel]);
 	EnumWindows((WNDENUMPROC)searchJump, (LPARAM)m_exfunc->get_frame_n(m_editp));
@@ -678,7 +678,7 @@ void CfgDlg::Save() {
 	of.Flags = OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
 	if(GetSaveFileName(&of) == 0) return;
 
-	bool ext = false;	// Šg’£q‚ª–³‚¢ê‡‚Í•t‚¯‚é
+	bool ext = false;	// æ‹¡å¼µå­ãŒç„¡ã„å ´åˆã¯ä»˜ã‘ã‚‹
 	for(int n = 0;n < sizeof(path);n++) {
 		if(path[n] == '\\' && !my_sjis(path,n-1)) ext = false;
 		if(path[n] == '.' && !my_sjis(path,n-1)) ext = true;
@@ -688,12 +688,12 @@ void CfgDlg::Save() {
 
 	if(fopen_s(&file,path,"r") == 0) {
 		fclose(file);
-		if(MessageBox(NULL,"ƒtƒ@ƒCƒ‹‚ğã‘‚«‚µ‚Ü‚·‚©H","ƒ`ƒƒƒvƒ^[•ÒW",MB_YESNO|MB_ICONINFORMATION)
+		if(MessageBox(NULL,"ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä¸Šæ›¸ãã—ã¾ã™ã‹ï¼Ÿ","ãƒãƒ£ãƒ—ã‚¿ãƒ¼ç·¨é›†",MB_YESNO|MB_ICONINFORMATION)
 			== IDCANCEL) return;
 	}
 
 	if(fopen_s(&file,path,"w")) {
-		MessageBox(NULL,"ƒtƒ@ƒCƒ‹‚ğ‘‚«‚ß‚Ü‚¹‚ñ‚Å‚µ‚½B","ƒ`ƒƒƒvƒ^[•ÒW",MB_OK|MB_ICONINFORMATION);
+		MessageBox(NULL,"ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ›¸ãè¾¼ã‚ã¾ã›ã‚“ã§ã—ãŸã€‚","ãƒãƒ£ãƒ—ã‚¿ãƒ¼ç·¨é›†",MB_OK|MB_ICONINFORMATION);
 		return;
 	}
 
@@ -722,7 +722,7 @@ void CfgDlg::AutoSave() {
 	strcat_s(path,sizeof(path),"chapter.txt");
 
 	if(fopen_s(&file,path,"w")) {
-		MessageBox(NULL,"©“®o—Íƒtƒ@ƒCƒ‹‚ğ‘‚«‚ß‚Ü‚¹‚ñ‚Å‚µ‚½B","ƒ`ƒƒƒvƒ^[•ÒW",MB_OK|MB_ICONINFORMATION);
+		MessageBox(NULL,"è‡ªå‹•å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ›¸ãè¾¼ã‚ã¾ã›ã‚“ã§ã—ãŸã€‚","ãƒãƒ£ãƒ—ã‚¿ãƒ¼ç·¨é›†",MB_OK|MB_ICONINFORMATION);
 		return;
 	}
 
@@ -765,7 +765,7 @@ void CfgDlg::Load() {
 	if(GetOpenFileName(&of) == 0) return;
 
 	if(fopen_s(&file,path,"r")) {
-		MessageBox(NULL,"ƒtƒ@ƒCƒ‹‚ğŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½B","ƒ`ƒƒƒvƒ^[•ÒW",MB_OK|MB_ICONINFORMATION);
+		MessageBox(NULL,"ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚","ãƒãƒ£ãƒ—ã‚¿ãƒ¼ç·¨é›†",MB_OK|MB_ICONINFORMATION);
 		return;
 	}
 
@@ -811,7 +811,7 @@ void CfgDlg::Load() {
 	ShowList();
 }
 
-// FAWƒ`ƒFƒbƒN‚ÆAFAWPreview.auf‚ğg‚Á‚Ä‚Ì1ƒtƒŒ[ƒ€ƒfƒR[ƒh
+// FAWãƒã‚§ãƒƒã‚¯ã¨ã€FAWPreview.aufã‚’ä½¿ã£ã¦ã®1ãƒ•ãƒ¬ãƒ¼ãƒ ãƒ‡ã‚³ãƒ¼ãƒ‰
 class CFAW {
 	bool is_half;
 
@@ -852,10 +852,10 @@ public:
 		return load_failed;
 	}
 
-	// FAWŠJn’n“_‚ğ’T‚·B1/2‚ÈFAW‚ªŒ©‚Â‚©‚ê‚ÎAˆÈ~‚Í‚»‚ê‚µ‚©’T‚³‚È‚¢B
-	// in: get_audio()‚Å“¾‚½‰¹ºƒf[ƒ^
-	// samples: get_audio() * ch”
-	// –ß‚è’lFFAWŠJnˆÊ’u‚ÌƒCƒ“ƒfƒbƒNƒXB‚È‚¯‚ê‚Î-1
+	// FAWé–‹å§‹åœ°ç‚¹ã‚’æ¢ã™ã€‚1/2ãªFAWãŒè¦‹ã¤ã‹ã‚Œã°ã€ä»¥é™ã¯ãã‚Œã—ã‹æ¢ã•ãªã„ã€‚
+	// in: get_audio()ã§å¾—ãŸéŸ³å£°ãƒ‡ãƒ¼ã‚¿
+	// samples: get_audio() * chæ•°
+	// æˆ»ã‚Šå€¤ï¼šFAWé–‹å§‹ä½ç½®ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€‚ãªã‘ã‚Œã°-1
 	int findFAW(short *in, int samples) {
 		// search for 72 F8 1F 4E 07 01 00 00
 		static unsigned char faw11[] = {0x72, 0xF8, 0x1F, 0x4E, 0x07, 0x01, 0x00, 0x00};
@@ -881,11 +881,11 @@ public:
 		return -1;
 	}
 
-	// FAWPreview.auf‚ğg‚Á‚ÄFAWƒf[ƒ^1‚Â‚ğ’Šo•ƒfƒR[ƒh‚·‚é
-	// in: FAWŠJnˆÊ’u‚Ìƒ|ƒCƒ“ƒ^BfindFAW‚É“n‚µ‚½in + findFAW‚Ì–ß‚è’l
-	// samples: in‚É‚ ‚éƒf[ƒ^‚ÌshortŠ·Z‚Å‚ÌƒTƒCƒY
-	// out: ƒfƒR[ƒhŒ‹‰Ê‚ğ“ü‚ê‚éƒoƒbƒtƒ@(16bit, 2ch‚Å1024ƒTƒ“ƒvƒ‹)
-	//     i1024sample * 2byte * 2ch = 4096ƒoƒCƒg•K—vj
+	// FAWPreview.aufã‚’ä½¿ã£ã¦FAWãƒ‡ãƒ¼ã‚¿1ã¤ã‚’æŠ½å‡ºï¼†ãƒ‡ã‚³ãƒ¼ãƒ‰ã™ã‚‹
+	// in: FAWé–‹å§‹ä½ç½®ã®ãƒã‚¤ãƒ³ã‚¿ã€‚findFAWã«æ¸¡ã—ãŸin + findFAWã®æˆ»ã‚Šå€¤
+	// samples: inã«ã‚ã‚‹ãƒ‡ãƒ¼ã‚¿ã®shortæ›ç®—ã§ã®ã‚µã‚¤ã‚º
+	// out: ãƒ‡ã‚³ãƒ¼ãƒ‰çµæœã‚’å…¥ã‚Œã‚‹ãƒãƒƒãƒ•ã‚¡(16bit, 2chã§1024ã‚µãƒ³ãƒ—ãƒ«)
+	//     ï¼ˆ1024sample * 2byte * 2ch = 4096ãƒã‚¤ãƒˆå¿…è¦ï¼‰
 	int decodeFAW(const short *in, int samples, short *out){
 		if (load()) {
 			return _ExtractDecode1FAW(in, samples, out, is_half);
@@ -911,7 +911,7 @@ public:
 		return true;
 	}
 
-	// g‚Á‚Ä‚Ü‚¹‚ñ
+	// ä½¿ã£ã¦ã¾ã›ã‚“
 	static int decodeFAW(byte *buffer, int rest, short *buf) {
 			int nbyte = 0;
 
@@ -963,19 +963,19 @@ public:
 	}
 };
 
-//[ru]–³‰¹•”•ªŒŸo
+//[ru]ç„¡éŸ³éƒ¨åˆ†æ¤œå‡º
 void CfgDlg::DetectMute() {
 	char str[STRLEN];
 
 	if(m_loadfile == false)
-		return;	//ƒtƒ@ƒCƒ‹‚ª“Ç‚İ‚Ü‚ê‚Ä‚¢‚È‚¢
+		return;	//ãƒ•ã‚¡ã‚¤ãƒ«ãŒèª­ã¿è¾¼ã¾ã‚Œã¦ã„ãªã„
 
 	FILE_INFO fip;
 	if (!m_exfunc->get_file_info(m_editp, &fip))
-		return; // î•ñ‚ğæ“¾‚Å‚«‚È‚¢
+		return; // æƒ…å ±ã‚’å–å¾—ã§ããªã„
 
 	if ((fip.flag & FILE_INFO_FLAG_AUDIO) == 0) {
-		MessageBox(m_hDlg, "‰¹ºƒgƒ‰ƒbƒN‚ª‚ ‚è‚Ü‚¹‚ñ", NULL, MB_OK);
+		MessageBox(m_hDlg, "éŸ³å£°ãƒˆãƒ©ãƒƒã‚¯ãŒã‚ã‚Šã¾ã›ã‚“", NULL, MB_OK);
 		return;
 	}
 
@@ -983,11 +983,11 @@ void CfgDlg::DetectMute() {
 	int mute = GetDlgItemInt(m_hDlg, IDC_EDITMUTE, NULL, FALSE);
 
 	if (seri < 5) {
-		MessageBox(m_hDlg, "–³‰¹˜A‘±ƒtƒŒ[ƒ€”‚Í 5 ˆÈã‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢", NULL, MB_OK);
+		MessageBox(m_hDlg, "ç„¡éŸ³é€£ç¶šãƒ•ãƒ¬ãƒ¼ãƒ æ•°ã¯ 5 ä»¥ä¸Šã‚’æŒ‡å®šã—ã¦ãã ã•ã„", NULL, MB_OK);
 		return;
 	}
 	if (mute < 0 || 1 << 15 < mute) {
-		MessageBox(m_hDlg, "–³‰¹è‡’l‚Í 0 ` 2^15 ‚Ì”ÍˆÍ‚Åw’è‚µ‚Ä‚­‚¾‚³‚¢", NULL, MB_OK);
+		MessageBox(m_hDlg, "ç„¡éŸ³é–¾å€¤ã¯ 0 ï½ 2^15 ã®ç¯„å›²ã§æŒ‡å®šã—ã¦ãã ã•ã„", NULL, MB_OK);
 		return;
 	}
 	
@@ -997,43 +997,43 @@ void CfgDlg::DetectMute() {
 	int n = m_exfunc->get_frame_n(m_editp);
 
 	/*
-	sprintf_s(str, STRLEN, "‰¹—Ê(%d/%d)ˆÈ‰º‚Ì•”•ª‚ª %d ƒtƒŒ[ƒ€ˆÈã˜A‘±‚µ‚Ä‚¢‚é•”•ª‚ğ’T‚µ‚Ü‚·B\nŒ»İ‚Ìƒ`ƒƒƒvƒ^[î•ñ‚Í‘S‚Äíœ‚³‚ê‚Ü‚·I", mute, 1 << 15, seri);
-	if (MessageBox(m_hDlg, str, "–³‰¹ŒŸõ", MB_OKCANCEL) != IDOK) {
+	sprintf_s(str, STRLEN, "éŸ³é‡(%d/%d)ä»¥ä¸‹ã®éƒ¨åˆ†ãŒ %d ãƒ•ãƒ¬ãƒ¼ãƒ ä»¥ä¸Šé€£ç¶šã—ã¦ã„ã‚‹éƒ¨åˆ†ã‚’æ¢ã—ã¾ã™ã€‚\nç¾åœ¨ã®ãƒãƒ£ãƒ—ã‚¿ãƒ¼æƒ…å ±ã¯å…¨ã¦å‰Šé™¤ã•ã‚Œã¾ã™ï¼", mute, 1 << 15, seri);
+	if (MessageBox(m_hDlg, str, "ç„¡éŸ³æ¤œç´¢", MB_OKCANCEL) != IDOK) {
 		return ;
 	}
 	*/
 
-	// ƒ`ƒƒƒvƒ^[ŒÂ”
+	// ãƒãƒ£ãƒ—ã‚¿ãƒ¼å€‹æ•°
 	int pos = 0;
 
-	// “K“–‚É‚Å‚©‚ß‚Éƒƒ‚ƒŠŠm•Û
+	// é©å½“ã«ã§ã‹ã‚ã«ãƒ¡ãƒ¢ãƒªç¢ºä¿
 	short buf[48000*2];
 	FRAME_STATUS fs;
 	int bvid = -10;
 	if (m_exfunc->get_frame_status(m_editp, 0, &fs))
 		bvid = fs.video;
 
-	int start_fr = 0;	// –³‰¹‚ÌŠJnƒtƒŒ[ƒ€
-	int mute_fr = 0;	// –³‰¹ƒtƒŒ[ƒ€”
-	bool isFAW = true;	// FAWg—p‚©‚Ç‚¤‚©iÅ‰‚ÌƒtƒŒ[ƒ€‚ÅŒŸoj
+	int start_fr = 0;	// ç„¡éŸ³ã®é–‹å§‹ãƒ•ãƒ¬ãƒ¼ãƒ 
+	int mute_fr = 0;	// ç„¡éŸ³ãƒ•ãƒ¬ãƒ¼ãƒ æ•°
+	bool isFAW = true;	// FAWä½¿ç”¨ã‹ã©ã†ã‹ï¼ˆæœ€åˆã®ãƒ•ãƒ¬ãƒ¼ãƒ ã§æ¤œå‡ºï¼‰
 	CFAW cfaw;
 
-	// ƒtƒŒ[ƒ€‚²‚Æ‚É‰¹º‚ğ‰ğÍ
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ã”ã¨ã«éŸ³å£°ã‚’è§£æ
 	int skip = 0;
 	for (int i=0; i<n; ++i) {
-		// ‰¹º‚ÆƒtƒŒ[ƒ€ƒXƒe[ƒ^ƒXæ“¾
+		// éŸ³å£°ã¨ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹å–å¾—
 		if (!m_exfunc->get_frame_status(m_editp, i, &fs)) {
 			continue;
 		}
 
-		// •ÒW“_‚ğŒŸo
+		// ç·¨é›†ç‚¹ã‚’æ¤œå‡º
 		int diff = fs.video - bvid;
 		bvid = fs.video;
 		if (diff && diff != 1) {
 			if (diff & 0xff000000)
-				sprintf_s(m_strTitle[pos], STRLEN, "ƒ\[ƒXƒ`ƒFƒ“ƒW");
+				sprintf_s(m_strTitle[pos], STRLEN, "ã‚½ãƒ¼ã‚¹ãƒã‚§ãƒ³ã‚¸");
 			else
-				sprintf_s(m_strTitle[pos], STRLEN, "•ÒW“_ (ŠÔŠuF%d)", diff);
+				sprintf_s(m_strTitle[pos], STRLEN, "ç·¨é›†ç‚¹ (é–“éš”ï¼š%d)", diff);
 			m_Frame[pos] = i;
 			m_SCPos[pos] = -1;
 			++pos;
@@ -1047,7 +1047,7 @@ void CfgDlg::DetectMute() {
 			continue;
 		}
 
-		// æƒtƒŒ[ƒ€‚ğ“Ç‚ñ‚Å‰¹‚ª‚ ‚ê‚Î”ò‚Î‚·
+		// å…ˆãƒ•ãƒ¬ãƒ¼ãƒ ã‚’èª­ã‚“ã§éŸ³ãŒã‚ã‚Œã°é£›ã°ã™
 		if (i && mute_fr == 0 ) {
 			int naudio = m_exfunc->get_audio(m_editp, i + seri - 1, buf);
 			if (naudio && isFAW) {
@@ -1071,10 +1071,10 @@ void CfgDlg::DetectMute() {
 		if (naudio == 0)
 			continue;
 
-		// ch”‚Å’²®
+		// chæ•°ã§èª¿æ•´
 		naudio *= fip.audio_ch;
 
-		// FAW‚ğƒfƒR[ƒh
+		// FAWã‚’ãƒ‡ã‚³ãƒ¼ãƒ‰
 		if (isFAW) {
 			bool isDecoded = false;
 			int j = cfaw.findFAW(buf, naudio);
@@ -1085,12 +1085,12 @@ void CfgDlg::DetectMute() {
 				isDecoded = naudio != 0;
 
 				if (cfaw.isLoadFailed()) {
-					MessageBox(this->m_fp->hwnd, "FAW‚ğƒfƒR[ƒh‚·‚é‚Ì‚É 11/02/06ˆÈ~‚ÌFAWPreview.aufiFAW‚Õ‚ê‚Ñ‚ã`j ‚ª•K—v‚Å‚·B", "ƒGƒ‰[", MB_OK);
+					MessageBox(this->m_fp->hwnd, "FAWã‚’ãƒ‡ã‚³ãƒ¼ãƒ‰ã™ã‚‹ã®ã« 11/02/06ä»¥é™ã®FAWPreview.aufï¼ˆFAWã·ã‚Œã³ã‚…ï½ï¼‰ ãŒå¿…è¦ã§ã™ã€‚", "ã‚¨ãƒ©ãƒ¼", MB_OK);
 					return ;
 				}
 			}
 			if (isDecoded == false) {
-				// Å‰‚ÌƒtƒŒ[ƒ€‚ÅAAC•”•ª‚ª–³‚¯‚ê‚ÎFAWƒ‚[ƒh‚ğ”²‚¯‚é
+				// æœ€åˆã®ãƒ•ãƒ¬ãƒ¼ãƒ ã§AACéƒ¨åˆ†ãŒç„¡ã‘ã‚Œã°FAWãƒ¢ãƒ¼ãƒ‰ã‚’æŠœã‘ã‚‹
 				if (i == 0)
 					isFAW = false;
 				else
@@ -1099,36 +1099,36 @@ void CfgDlg::DetectMute() {
 		}
 
 		if (CMute::isMute(buf, naudio, mute)) {
-			// –³‰¹ƒtƒŒ[ƒ€‚¾‚Á‚½
+			// ç„¡éŸ³ãƒ•ãƒ¬ãƒ¼ãƒ ã ã£ãŸ
 			if (mute_fr == 0) {
 				start_fr = i;
 			}
 			++mute_fr;
 		} else {
-			// –³‰¹‚¶‚á‚È‚©‚Á‚½
-			// Šî€ƒtƒŒ[ƒ€”ˆÈã˜A‘±–³‰¹‚¾‚Á‚½‚ç
+			// ç„¡éŸ³ã˜ã‚ƒãªã‹ã£ãŸ
+			// åŸºæº–ãƒ•ãƒ¬ãƒ¼ãƒ æ•°ä»¥ä¸Šé€£ç¶šç„¡éŸ³ã ã£ãŸã‚‰
 			if (mute_fr >= seri) {
-				// ‘O‰ñ‚Æ‚Ì·•ª‚ª14`16•b‚¾‚Á‚½‚çš‚ğ‚Â‚¯‚é
+				// å‰å›ã¨ã®å·®åˆ†ãŒ14ï½16ç§’ã ã£ãŸã‚‰â˜…ã‚’ã¤ã‘ã‚‹
 				char *mark = "";
 				if (pos > 0 && abs(start_fr - m_Frame[pos-1] - 30*15) < 30) {
-					mark = "š";
+					mark = "â˜…";
 				} else if (pos > 0 && abs(start_fr - m_Frame[pos-1] - 30*30) < 30) {
-					mark = "šš";
+					mark = "â˜…â˜…";
 				} else if (pos > 0 && abs(start_fr - m_Frame[pos-1] - 30*45) < 30) {
-					mark = "ššš";
+					mark = "â˜…â˜…â˜…";
 				} else if (pos > 0 && abs(start_fr - m_Frame[pos-1] - 30*60) < 30) {
-					mark = "šššš";
+					mark = "â˜…â˜…â˜…â˜…";
 				}
 				
 				if (pos && (start_fr - m_Frame[pos-1] <= 1)) {
-					sprintf_s(m_strTitle[pos-1], STRLEN, "%s –³‰¹%02dƒtƒŒ[ƒ€ %s", m_strTitle[pos-1], mute_fr, mark);
+					sprintf_s(m_strTitle[pos-1], STRLEN, "%s ç„¡éŸ³%02dãƒ•ãƒ¬ãƒ¼ãƒ  %s", m_strTitle[pos-1], mute_fr, mark);
 				} else {
-					sprintf_s(m_strTitle[pos], STRLEN, "%02dƒtƒŒ[ƒ€ %s", mute_fr, mark);
+					sprintf_s(m_strTitle[pos], STRLEN, "%02dãƒ•ãƒ¬ãƒ¼ãƒ  %s", mute_fr, mark);
 					m_Frame[pos] = start_fr;
 
 					if (IsDlgButtonChecked(m_fp->hwnd, IDC_PRECHECK)){
 						m_SCPos[pos] = GetSCPos(start_fr, mute_fr);
-						sprintf_s(m_strTitle[pos], STRLEN, "%02dƒtƒŒ[ƒ€ %s SCPos:%d", mute_fr, mark, m_SCPos[pos]);
+						sprintf_s(m_strTitle[pos], STRLEN, "%02dãƒ•ãƒ¬ãƒ¼ãƒ  %s SCPos:%d", mute_fr, mark, m_SCPos[pos]);
 						if (IsDlgButtonChecked(m_fp->hwnd, IDC_SCMARK)){
 							int target_frame = start_fr + m_SCPos[pos];
 							FRAME_STATUS frameStatus;
@@ -1146,7 +1146,7 @@ void CfgDlg::DetectMute() {
 			mute_fr = start_fr = 0;
 		}
 
-		// Å‘å”ƒI[ƒo[
+		// æœ€å¤§æ•°ã‚ªãƒ¼ãƒãƒ¼
 		if (pos > 99) {
 			break;
 		}
@@ -1155,7 +1155,7 @@ void CfgDlg::DetectMute() {
 	m_numChapter = pos;
 	ShowList();
 }
-//‚±‚±‚Ü‚Å
+//ã“ã“ã¾ã§
 
 void CfgDlg::UpdateFramePos()
 {
@@ -1175,18 +1175,18 @@ void CfgDlg::UpdateFramePos()
 	memcpy(orgSCPos, m_SCPos, sizeof(int)*100);
 
 	m_numChapter = 0;
-	int pos = 0; // V‚µ‚¢ˆÊ’u
+	int pos = 0; // æ–°ã—ã„ä½ç½®
 	int bCutInserted = false;
 	for(int n=0; n<orgNum && pos < 100; n++){
 		if(orgFrame[n] >= stFrame && orgFrame[n] <= edFrame){
 			if (bCutInserted == false) {
 				bCutInserted = true;
-				sprintf_s(m_strTitle[pos], STRLEN, "•ÒW“_ (ŠÔŠuF%d)", diff);
+				sprintf_s(m_strTitle[pos], STRLEN, "ç·¨é›†ç‚¹ (é–“éš”ï¼š%d)", diff);
 				pos++;
 			}
 			continue;
 		}
-		// ‘I‘ğˆÊ’u‚ÌŒˆ’è
+		// é¸æŠä½ç½®ã®æ±ºå®š
 		if (nShowing > orgFrame[n]) {
 			toSelect = n;
 		}
