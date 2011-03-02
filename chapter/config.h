@@ -65,6 +65,7 @@ public:
 	int GetSCPos(int moveto, int frames);
 
 	//[ru]関数追加
+	void LoadFromFile(char *filename);
 	void DetectMute();
 	//ここまで
 

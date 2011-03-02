@@ -484,7 +484,6 @@ int CfgDlg::GetSCPos(int moveto, int frames)
 		return 0;
 	}
 
-	char str[500]; // debug
 	int w = fi.w & 0xFFF0;
 	int h = fi.h & 0xFFF0;
 
@@ -740,11 +739,7 @@ void CfgDlg::AutoSave() {
 }
 
 void CfgDlg::Load() {
-	LONGLONG t;
-	int h,m,s;
-	int frame;
-	char str[STRLEN],path[_MAX_PATH];
-	FILE *file;
+	char path[_MAX_PATH];
 	OPENFILENAME of;
 
 	if(m_loadfile == false) return;
@@ -762,9 +757,19 @@ void CfgDlg::Load() {
 	of.nMaxFileTitle = 0;
 	of.lpstrInitialDir = NULL;
 	of.Flags = OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
-	if(GetOpenFileName(&of) == 0) return;
+	if(GetOpenFileName(&of) == 0) {
+		return;
+	}
+	LoadFromFile(path);
+}
 
-	if(fopen_s(&file,path,"r")) {
+void CfgDlg::LoadFromFile(char *filename) {
+	FILE *file;
+	char str[STRLEN];
+	LONGLONG t;
+	int h,m,s;
+	int frame;
+	if(fopen_s(&file,filename,"r")) {
 		MessageBox(NULL,"ファイルを開けませんでした。","チャプター編集",MB_OK|MB_ICONINFORMATION);
 		return;
 	}
@@ -910,63 +915,10 @@ public:
 		}
 		return true;
 	}
-
-	// 使ってません
-	static int decodeFAW(byte *buffer, int rest, short *buf) {
-			int nbyte = 0;
-
-			const char endc[4] = "END";
-			byte endaac[16] = {0xFFu, 0xF9, 0x4C, 0x80, 0x02, 0x1F, 0xFC, 0x21, 0x00, 0x49, 0x90, 0x02, 0x19, 0x00, 0x23, 0x80};
-			const unsigned long end = *(unsigned long*)endc;
-			for (int i=0; i<rest; i++) {
-				if (end == *(unsigned long*)(buffer+i)) {
-					nbyte = i - 8;
-					break;
-				}
-			}
-			if (nbyte == 0) {
-				return 0;
-			}
-
-			faacDecHandle			hDecoder;
-			faacDecFrameInfo		mFrameInfo;
-			faacDecConfigurationPtr	pConfig;
-			unsigned long			ulSamplerate;
-			unsigned char			ubChannels;
-			long					lSpendbyte;
-			size_t					mReadSize;
-			void *					vpDecbuffer;
-			int						iCnt;
-
-			hDecoder = faacDecOpen();
-			pConfig = faacDecGetCurrentConfiguration(hDecoder);
-			pConfig->defObjectType = 0;
-			pConfig->outputFormat = FAAD_FMT_16BIT;
-			faacDecSetConfiguration(hDecoder, pConfig);
-
-			if((lSpendbyte = faacDecInit(hDecoder, buffer, nbyte, &ulSamplerate, &ubChannels)) < 0 ){
-				faacDecClose(hDecoder);
-				return 0;
-			}
-
-			vpDecbuffer = faacDecDecode(hDecoder, &mFrameInfo, buffer, nbyte);
-			vpDecbuffer = faacDecDecode(hDecoder, &mFrameInfo, endaac, sizeof endaac);
-			if (mFrameInfo.error > 0){
-				return 0;
-			}
-
-			memcpy(buf, vpDecbuffer, 2* mFrameInfo.samples);
-			int ret = mFrameInfo.samples;
-
-			faacDecClose(hDecoder);
-			return ret;
-	}
 };
 
 //[ru]無音部分検出
 void CfgDlg::DetectMute() {
-	char str[STRLEN];
-
 	if(m_loadfile == false)
 		return;	//ファイルが読み込まれていない
 

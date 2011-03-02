@@ -120,12 +120,19 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 	switch(message) {
 		case WM_FILTER_INIT:
 			g_config.Init(hwnd,editp,fp);
+			
+			// ドラッグ＆ドロップ対応
+			DragAcceptFiles(hwnd, TRUE);
+
 			g_hwnd = hwnd;
 			g_hHook = SetWindowsHookEx(WH_KEYBOARD,KeyboardProc,0,GetCurrentThreadId());
 			g_keyhook = 0;
 			g_hMessageHook = SetWindowsHookEx(WH_GETMESSAGE,WindowMessageProc,0,GetCurrentThreadId());
 			break;
 		case WM_FILTER_EXIT:
+			// ドラッグ＆ドロップ終了
+			DragAcceptFiles(hwnd, FALSE);
+
 			UnhookWindowsHookEx(g_hMessageHook);
 			UnhookWindowsHookEx(g_hHook);
 			break;
@@ -141,6 +148,15 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 		case WM_FILTER_FILE_CLOSE:
 			g_config.SetFrameN(NULL, 0);
 			g_config.SetFps(10, 10);
+			break;
+		// DnD
+		case WM_DROPFILES:
+			char szFile[1000];
+			DragQueryFile((HDROP)wparam, 0, szFile, 1000);
+			if (strstr(szFile, ".txt")) {
+				g_config.LoadFromFile(szFile);
+			}
+			DragFinish((HDROP)wparam);
 			break;
 		//ここまで
 		case WM_COMMAND:
