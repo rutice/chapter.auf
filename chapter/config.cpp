@@ -93,20 +93,22 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	SendDlgItemMessage(hwnd,IDC_EDNAME,WM_SETFONT,(WPARAM)hfont2,0);
 	CreateWindow("BUTTON","保存",WS_CHILD|WS_VISIBLE,480,12,73,22,hwnd,(HMENU)IDC_BUSAVE,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUSAVE,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","読込",WS_CHILD|WS_VISIBLE,480,51,73,22,hwnd,(HMENU)IDC_BULOAD,hinst,0);
+	CreateWindow("BUTTON","読込",WS_CHILD|WS_VISIBLE,480,40,73,22,hwnd,(HMENU)IDC_BULOAD,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BULOAD,WM_SETFONT,(WPARAM)hfont,0);
+	CreateWindow("BUTTON","自動出力",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,65,73,22,hwnd,(HMENU)IDC_CHECK1,hinst,0);
+	SendDlgItemMessage(hwnd,IDC_CHECK1,WM_SETFONT,(WPARAM)hfont,0);
 	//[ru]ボタン追加
-	CreateWindow("BUTTON","無音部分",WS_CHILD|WS_VISIBLE,480,130,73,22,hwnd,(HMENU)IDC_BUDETECT,hinst,0);
+	CreateWindow("BUTTON","無音部分",WS_CHILD|WS_VISIBLE,480,100,73,22,hwnd,(HMENU)IDC_BUDETECT,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUDETECT,WM_SETFONT,(WPARAM)hfont,0);
 	
-	CreateWindow("STATIC","連続",WS_CHILD|WS_VISIBLE,480,160,73,22,hwnd,(HMENU)IDC_STATICa,hinst,0);
+	CreateWindow("STATIC","連続",WS_CHILD|WS_VISIBLE,480,130,73,22,hwnd,(HMENU)IDC_STATICa,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATICa,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,520,160,33,22,hwnd,(HMENU)IDC_EDITSERI,hinst,0);
+	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,520,127,33,22,hwnd,(HMENU)IDC_EDITSERI,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDITSERI,WM_SETFONT,(WPARAM)hfont,0);
 
-	CreateWindow("STATIC","閾値",WS_CHILD|WS_VISIBLE,480,190,73,22,hwnd,(HMENU)IDC_STATICb,hinst,0);
+	CreateWindow("STATIC","閾値",WS_CHILD|WS_VISIBLE,480,160,73,22,hwnd,(HMENU)IDC_STATICb,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATICb,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,520,190,33,22,hwnd,(HMENU)IDC_EDITMUTE,hinst,0);
+	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,520,157,33,22,hwnd,(HMENU)IDC_EDITMUTE,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDITMUTE,WM_SETFONT,(WPARAM)hfont,0);
 	
 	CreateWindow("BUTTON","SC位置",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,215,73,22,hwnd,(HMENU)IDC_CHECKSC,hinst,0);
@@ -126,8 +128,38 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	SendDlgItemMessage(hwnd,IDC_STATIC1,WM_SETFONT,(WPARAM)hfont,0);
 	CreateWindow("STATIC","名称",WS_CHILD|WS_VISIBLE,12,384,31,17,hwnd,(HMENU)IDC_STATIC2,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATIC2,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","自動出力",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,90,73,22,hwnd,(HMENU)IDC_CHECK1,hinst,0);
-	SendDlgItemMessage(hwnd,IDC_CHECK1,WM_SETFONT,(WPARAM)hfont,0);
+
+	// tooltip
+	struct {
+		int id;
+		char *help;
+	} tips[] = {
+		{ IDC_BUSAVE, "チャプターファイル（*.txt）を保存します。" },
+		{ IDC_BULOAD, "チャプターファイル（*.txt）を読み込みます。画面にファイルをD&Dしても読み込めます。" },
+		{ IDC_CHECK1, "エンコード開始時に、チャプター一覧を chapter.txt に書き出します。無音検索では基本的に使いません。" },
+		{ IDC_BUDEL, "選択したチャプター（無音位置）を一覧から削除します。" },
+		{ IDC_BUADD, "チャプター（無音位置）を一覧に追加します。無音検索では基本的に使いません。" },
+		{ IDC_BUDETECT, "無音位置の検索を開始します。" },
+		{ IDC_EDITSERI, "検出する最低連続無音フレーム数（5 ～）デフォルト：10" },
+		{ IDC_EDITMUTE, "無音と判定する閾値（0 ～ 32767）デフォルト：50" },
+		{ IDC_CHECKSC, "“無音位置へシークする時”、シーンチェンジを検出してその位置を表示します。" },
+		{ IDC_PRECHECK, "「無音検索」時に、シーンチェンジ検索も併せて行います（時間がかかります）。" },
+		{ IDC_SCMARK, "「全SC検索」チェック時に無音検索した場合、または「読込」時にSCPos情報がある場合、シーンチェンジ位置にマークを打ちます。" }
+	};
+
+	TOOLINFO ti;
+	ZeroMemory(&ti, sizeof(ti));
+	HWND htip = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, TTS_ALWAYSTIP | TTS_NOPREFIX | TTS_BALLOON, 
+		CW_USEDEFAULT,CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hwnd, 0, hinst, 
+		NULL);
+	ti.cbSize = sizeof(ti);
+	ti.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
+	ti.hwnd = hwnd;
+	for(int i=0; i<sizeof(tips)/sizeof(tips[0]); i++) {
+		ti.uId = (UINT_PTR)GetDlgItem(hwnd, tips[i].id);
+		ti.lpszText = tips[i].help;
+		SendMessage(htip , TTM_ADDTOOL , 0 , (LPARAM)&ti);
+	}
 
 	// コンボボックスに履歴追加
 	for(int n = 0;n < NUMHIS;n++) {
@@ -810,7 +842,7 @@ void CfgDlg::LoadFromFile(char *filename) {
 		}
 
 		m_numChapter++;
-		if(m_numChapter > 100) break;
+		if(m_numChapter >= 100) break;
 	}
 	fclose(file);
 	ShowList();
