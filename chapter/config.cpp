@@ -70,8 +70,8 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 
 	m_fp = fp;
 	m_exfunc = fp->exfunc;
-	m_scale = 100;	// 29.97fps
-	m_rate = 2997;	// 29.97fps
+	m_scale = 30000;	// 29.97fps
+	m_rate = 1001;	// 29.97fps
 	m_numFrame = 0;
 	m_numChapter = 0;
 	m_numHis = 0;
@@ -812,6 +812,10 @@ void CfgDlg::LoadFromFile(char *filename) {
 		if(fgets(str,STRLEN,file) == NULL) break;
 		//                       0123456789012345678901
 		if(strlen(str) < sizeof("CHAPTER00=00:00:00.000")) break;
+		// 3ケタ対応（仮）
+		if (str[10] == '=') {
+			strcpy(str, str+1);
+		}
 		h = (str[10] - '0') * 10 + (str[11] - '0');
 		m = (str[13] - '0') * 10 + (str[14] - '0');
 		s = (str[16] - '0') * 10000 + (str[17] - '0') * 1000 + (str[19] - '0') * 100 + (str[20] - '0') * 10 + (str[21] - '0');
@@ -822,8 +826,13 @@ void CfgDlg::LoadFromFile(char *filename) {
 		if(fgets(str,STRLEN,file) == NULL) break;
 		//                       01234567890123
 		if(strlen(str) < sizeof("CHAPTER00NAME=")) break;
+		// 3ケタ対応（仮）
 		for(int i = 0;i < STRLEN;i++) if(str[i] == '\n' || str[i] == '\r') {str[i] = 0; break;}
-		strcpy_s(m_strTitle[m_numChapter],STRLEN,str + 14);
+		char *p = strstr(str, "NAME=");
+		if (p) {
+			strcpy_s(m_strTitle[m_numChapter], STRLEN, p+5);
+		}
+		
 		m_Frame[m_numChapter] = frame;
 		m_SCPos[m_numChapter] = -1;
 
@@ -842,7 +851,7 @@ void CfgDlg::LoadFromFile(char *filename) {
 		}
 
 		m_numChapter++;
-		if(m_numChapter >= 100) break;
+		if(m_numChapter >= MAXCHAPTER) break;
 	}
 	fclose(file);
 	ShowList();
@@ -1131,7 +1140,7 @@ void CfgDlg::DetectMute() {
 		}
 
 		// 最大数オーバー
-		if (pos > 99) {
+		if (pos >= MAXCHAPTER) {
 			break;
 		}
 	}
@@ -1151,20 +1160,24 @@ void CfgDlg::UpdateFramePos()
 	nShowing = m_exfunc->get_frame(m_editp);
 
 	int orgNum = m_numChapter;
-	int orgFrame[100];
-	char orgTitle[100][STRLEN];
-	int orgSCPos[100];
-	memcpy(orgFrame, m_Frame, sizeof(int)*100);
-	memcpy(orgTitle, m_strTitle,  sizeof(char)*100*STRLEN);
-	memcpy(orgSCPos, m_SCPos, sizeof(int)*100);
+	int orgFrame[MAXCHAPTER];
+	char orgTitle[MAXCHAPTER][STRLEN];
+	int orgSCPos[MAXCHAPTER];
+	memcpy(orgFrame, m_Frame, sizeof(int)*MAXCHAPTER);
+	memcpy(orgTitle, m_strTitle,  sizeof(char)*MAXCHAPTER*STRLEN);
+	memcpy(orgSCPos, m_SCPos, sizeof(int)*MAXCHAPTER);
 
 	m_numChapter = 0;
 	int pos = 0; // 新しい位置
 	int bCutInserted = false;
-	for(int n=0; n<orgNum && pos < 100; n++){
-		if(orgFrame[n] >= stFrame && orgFrame[n] <= edFrame){
+	for(int n=0; n<orgNum && pos < MAXCHAPTER; n++){
+		if(pos > 0 && orgFrame[n] >= stFrame && orgFrame[n] <= edFrame){
 			if (bCutInserted == false) {
 				bCutInserted = true;
+				if (m_Frame[pos-1] + 30 > stFrame) {
+					pos--;
+				}
+				m_Frame[pos] = stFrame;
 				sprintf_s(m_strTitle[pos], STRLEN, "編集点 (間隔：%d)", diff);
 				pos++;
 			}

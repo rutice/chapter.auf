@@ -10,8 +10,11 @@
 #define NUMHIS 30	// 保存する履歴の数
 #define STRLEN 256	// 文字列の最大長
 
+#define MAXCHAPTER 500
+
 class CfgDlg;
 
+// aupに保存する内容。現状100個まで
 typedef struct 
 {
 	// チャプタ数は書式上最大100個まで
@@ -46,9 +49,9 @@ class CfgDlg
 
 public:
 	int m_numChapter;
-	int m_Frame[100];
-	char m_strTitle[100][STRLEN];
-	int m_SCPos[100];
+	int m_Frame[MAXCHAPTER];
+	char m_strTitle[MAXCHAPTER][STRLEN];
+	int m_SCPos[MAXCHAPTER];
 
 	void ShowList(int defSelect = -1);
 	void Init(HWND hwnd,void *editp,FILTER *fp);

@@ -205,7 +205,7 @@ BOOL func_project_save( FILTER *fp,void *editp,void *data,int *size ) {
 	*size = sizeof(PrfDat);
 	if(data == NULL) return TRUE;	// この関数は2回呼ばれる
 
-	g_prf.m_numChapter = g_config.m_numChapter;
+	g_prf.m_numChapter = min(100, g_config.m_numChapter);
 	CopyMemory(g_prf.m_Frame,g_config.m_Frame,sizeof(int)*100);
 	CopyMemory(g_prf.m_strTitle,g_config.m_strTitle,sizeof(char)*100*STRLEN);
 	CopyMemory(g_prf.m_SCPos,g_config.m_SCPos,sizeof(int)*100);
