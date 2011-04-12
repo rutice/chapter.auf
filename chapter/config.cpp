@@ -223,7 +223,7 @@ void CfgDlg::ShowList(int nSelect) {
 	}
 
 	if (nSelect != -1) {
-		SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, (WPARAM)min(m_numChapter, nSelect + 8), 0L);
+		SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETTOPINDEX, (WPARAM)max(nSelect-3, 0), 0L);
 		SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, (WPARAM)nSelect, 0L);
 	}
 }
@@ -269,13 +269,21 @@ void CfgDlg::AddList() {
 	int ins;
 
 	if(m_loadfile == false) return;	//ファイルが読み込まれていない
-	if(m_numChapter > 99) return;
+	if(m_numChapter >= MAXCHAPTER) {
+		return;
+	}
 
 	GetDlgItemText(m_hDlg,IDC_EDNAME,str,STRLEN);
-	if(str[0] == NULL) return;	//タイトルが入力されていない
+	//if(str[0] == '\0') return;	//タイトルが入力されてなくてもおｋ(r13)
 
 	for(ins = 0;ins < m_numChapter;ins++) {
-		if(m_Frame[ins] == m_frame) return;	//タイムコードが重複している
+		if(m_Frame[ins] == m_frame) {
+			//タイムコードが重複しているときは、タイトルを変更(r13)
+			strcpy_s(m_strTitle[ins], STRLEN, str);
+			ShowList(ins);
+			AddHis();
+			return;
+		}
 		if(m_Frame[ins] > m_frame) break;
 	}
 	for(int n = m_numChapter;n > ins;n--) {
@@ -288,7 +296,7 @@ void CfgDlg::AddList() {
 	strcpy_s(m_strTitle[ins],STRLEN,str);
 	m_Frame[ins] = m_frame;
 	m_SCPos[ins] = -1;
-	ShowList();
+	ShowList(ins);
 	AddHis();
 }
 
@@ -307,7 +315,9 @@ void CfgDlg::DelList() {
 		strcpy_s(m_strTitle[n],STRLEN,m_strTitle[n+1]);
 		m_SCPos[n] = m_SCPos[n+1];
 	}
-	ShowList();
+	if (m_numChapter) {
+		ShowList(min(sel, m_numChapter - 1));
+	}
 }
 
 //[ru]IIR_3DNRより拝借
@@ -656,13 +666,9 @@ void CfgDlg::Seek() {
 		if(max_motion_frame == -1){
 			max_motion_frame = GetSCPos(moveto, frames);
 		}
-		max_motion_frame += moveto;
-		m_exfunc->set_frame(m_editp, max_motion_frame);
-		EnumWindows((WNDENUMPROC)searchJump, (LPARAM)m_exfunc->get_frame_n(m_editp));
-		return;
+		moveto += max_motion_frame;
 	}
-	//ここまで
-	m_exfunc->set_frame(m_editp,m_Frame[sel]);
+	m_exfunc->set_frame(m_editp, moveto);
 	SetDlgItemText(m_hDlg,IDC_EDNAME,m_strTitle[sel]);
 	EnumWindows((WNDENUMPROC)searchJump, (LPARAM)m_exfunc->get_frame_n(m_editp));
 }
