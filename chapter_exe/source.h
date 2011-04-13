@@ -197,11 +197,12 @@ public:
 				if (fread(&_fmt, min(size, sizeof(_fmt)), 1, _f) != 1) {
 					throw "   illegal WAVE file.";
 				}
-				if (size - sizeof(_fmt) > 0) {
-					fseek(_f, size - sizeof(_fmt), SEEK_CUR);
-				}
 				if (_fmt.wFormatTag != WAVE_FORMAT_PCM) {
 					throw "   only PCM supported.";
+				}
+				int diff = size - sizeof(_fmt);
+				if (diff > 0) {
+					fseek(_f, size - sizeof(_fmt), SEEK_CUR);
 				}
 			} else if (strncmp(buf, "data", 4) == 0){
 				fseek(_f, 4, SEEK_CUR);

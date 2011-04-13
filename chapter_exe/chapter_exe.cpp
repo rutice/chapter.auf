@@ -179,7 +179,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CFAW cfaw;
 		int faws = 0;
 
-		for (int i=0; i<min(10, n); i++) {
+		for (int i=0; i<min(90, n); i++) {
 			int naudio = audio->read_audio(i, buf);
 			int j = cfaw.findFAW(buf, naudio);
 			if (j != -1) {
@@ -187,7 +187,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				faws++;
 			}
 		}
-		if (faws > 3) {
+		if (faws > 5) {
 			if (cfaw.isLoadFailed()) {
 				printf("  Error: FAW detected, but no FAWPreview.auf.\n");
 			} else {
