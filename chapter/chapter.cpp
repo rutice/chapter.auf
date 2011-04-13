@@ -82,7 +82,7 @@ LRESULT CALLBACK KeyboardProc(int nCode,WPARAM wParam,LPARAM lParam)
 	static int ime = 0;
 
 	// Enterキーで入力
-	if (!g_keyhook && nCode == HC_ACTION && wParam == 0x0D && GetForegroundWindow() == g_hwnd) {
+	if (!g_keyhook && nCode == HC_ACTION && wParam == 0x0D && ((lParam & (1 << 30)) == 0) && GetForegroundWindow() == g_hwnd) {
 		// IMEでのEnterを無視する
 		HIMC hIMC = ImmGetContext(g_hwnd);
 		if(ImmGetOpenStatus(hIMC) && ImmGetCompositionString(hIMC, GCS_COMPSTR, NULL, 0)) ime = 2;

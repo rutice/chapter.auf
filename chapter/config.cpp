@@ -232,7 +232,6 @@ void CfgDlg::AddHis() {
 	char str[STRLEN];
 
 	GetDlgItemText(m_hDlg,IDC_EDNAME,str,STRLEN);
-	SetDlgItemText(m_hDlg,IDC_EDNAME,"");
 
 	//履歴に同じ文字列があれば履歴から削除
 	for(int n = 0;n < m_numHis;n++) {
