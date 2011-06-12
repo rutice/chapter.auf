@@ -2,10 +2,13 @@
 //		チャプター編集プラグイン by ぽむ 
 //----------------------------------------------------------------------------------
 #include <windows.h>
+#include <Shlwapi.h>
 #include <imm.h>
 #include "config.h"
 #include "resource.h"
 #include "mylib.h"
+
+#pragma comment(lib, "Shlwapi.lib")
 
 //---------------------------------------------------------------------
 //		フィルタ構造体定義
@@ -143,6 +146,13 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 		case WM_FILTER_FILE_OPEN:	//ファイル読み込み
 			if(fp->exfunc->get_file_info(editp,&fip)) g_config.SetFps(fip.video_rate,fip.video_scale);
 			g_config.SetFrameN(editp,fp->exfunc->get_frame_n(editp));
+			// 同名のtxtファイルがあれば、chapterファイルとして読み込む
+			char path[MAX_PATH];
+			strcpy_s(path, fip.name);
+			PathRenameExtension(path, ".txt");
+			if (PathFileExists(path)) {
+				g_config.LoadFromFile(path);
+			}
 			break;
 		//[ru]閉じたとき
 		case WM_FILTER_FILE_CLOSE:

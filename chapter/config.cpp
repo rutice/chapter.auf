@@ -800,9 +800,12 @@ void CfgDlg::Load() {
 	LoadFromFile(path);
 }
 
+#include <regex>
+#include <tchar.h>
+
 void CfgDlg::LoadFromFile(char *filename) {
 	FILE *file;
-	char str[STRLEN];
+	char str[STRLEN+2];
 	LONGLONG t;
 	int h,m,s;
 	int frame;
@@ -811,28 +814,38 @@ void CfgDlg::LoadFromFile(char *filename) {
 		return;
 	}
 
+	const std::tr1::basic_regex<TCHAR> re(_T("CHAPTER(\\d\\d\\d?)=(\\d\\d):(\\d\\d):(\\d\\d)\\.(\\d\\d\\d)"));
+
 	m_numChapter = 0;
 
 	while(true) {
 		if(fgets(str,STRLEN,file) == NULL) break;
 		//                       0123456789012345678901
 		if(strlen(str) < sizeof("CHAPTER00=00:00:00.000")) break;
-		// 3ケタ対応（仮）
-		if (str[10] == '=') {
-			strcpy(str, str+1);
+
+		std::tr1::match_results<std::string::const_iterator> results;
+		std::string stds(str);
+		if (std::tr1::regex_search(stds, results, re) == FALSE) {
+			break;
 		}
-		h = (str[10] - '0') * 10 + (str[11] - '0');
-		m = (str[13] - '0') * 10 + (str[14] - '0');
-		s = (str[16] - '0') * 10000 + (str[17] - '0') * 1000 + (str[19] - '0') * 100 + (str[20] - '0') * 10 + (str[21] - '0');
+		h = atoi(results.str(2).c_str());
+		m = atoi(results.str(3).c_str());
+		s = atoi(results.str(4).c_str()) * 1000 + atoi(results.str(5).c_str());
 		t = (LONGLONG)h * 36000000000 + (LONGLONG)m * 600000000 + (LONGLONG)s * 10000;
-		frame = (int)(t * m_rate / m_scale / 10000000);
+
+		// 近い整数に丸まるように少し足す
+		frame = (int)((t * m_rate + m_scale * 10000000 / 10) / m_scale / 10000000);
 		if(frame < 0) frame = 0;
 
 		if(fgets(str,STRLEN,file) == NULL) break;
 		//                       01234567890123
 		if(strlen(str) < sizeof("CHAPTER00NAME=")) break;
 		// 3ケタ対応（仮）
-		for(int i = 0;i < STRLEN;i++) if(str[i] == '\n' || str[i] == '\r') {str[i] = 0; break;}
+		for(int i = 0;i < STRLEN;i++) {
+			if(str[i] == '\n' || str[i] == '\r') {
+				str[i] = 0; break;
+			}
+		}
 		char *p = strstr(str, "NAME=");
 		if (p) {
 			strcpy_s(m_strTitle[m_numChapter], STRLEN, p+5);
