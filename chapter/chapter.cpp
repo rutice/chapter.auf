@@ -9,6 +9,7 @@
 #include "mylib.h"
 
 #pragma comment(lib, "Shlwapi.lib")
+#pragma comment(lib, "imm32.lib")
 
 //---------------------------------------------------------------------
 //		フィルタ構造体定義

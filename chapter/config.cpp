@@ -11,13 +11,6 @@
 #include "config.h"
 #include "mylib.h"
 
-#include "neaacdec.h"
-#ifdef _DEBUG
-//#pragma comment(lib, "libfaadD.lib")
-#else
-//#pragma comment(lib, "libfaad.lib")
-#endif
-
 //[ru]計測クラス
 //#define CHECKSPEED
 #ifdef CHECKSPEED
@@ -423,7 +416,7 @@ int ave_y(PIXEL_YC *pyc, int w, int h) {
 //ここまで
 
 //[ru] ジャンプウィンドウ更新
-BOOL searchJump(HWND hWnd, LPARAM lParam) {
+BOOL CALLBACK searchJump(HWND hWnd, LPARAM lParam) {
 	TCHAR buf[1024];
 	TCHAR frames[2][100];
 	sprintf_s(frames[0], "/ %d ]", lParam);
