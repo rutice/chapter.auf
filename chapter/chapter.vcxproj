@@ -89,7 +89,6 @@
     <ClCompile Include="chapter.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="mvec.cpp" />
-    <ClCompile Include="mylib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="chapter.def" />

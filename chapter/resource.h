@@ -27,6 +27,12 @@
 #define IDC_PRECHECK                    1024
 #define IDC_SCMARK                      1025
 
+#define IDM_CHAP_NEXT					101
+#define IDM_CHAP_PREV					102
+#define IDM_CHAP_NEXTHERE				103
+#define IDM_CHAP_PREVHERE				104
+#define IDM_CHAP_DELETE					110
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

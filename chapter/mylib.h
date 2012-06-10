@@ -46,10 +46,96 @@ inline void my_rgb2yc(int R,int G,int B,short *Y,short *Cb,short *Cr) {
 	*Cr = (short)RGB2Cr(R,G,B);
 }
 
-int my_getbuild(FILTER *fp,void *editp);		// AviUtlのBuild番号の取得(0.99e2以降)
-HFONT my_getfont(FILTER *fp,void *editp);		// AviUtlのフォントの取得
-int my_numthreads(FILTER *fp);					// AviUtlのスレッド数を取得
-bool my_sjis(char *chr,int pos);				// SJISの1文字目判定
-void my_getpath(char *path,int length);			// パス名の抽出（ファイル名の前まで）
-void my_getexepath(char *path,int length);		// AviUtlのあるパス名の取得
-void my_getaufpath(FILTER *fp,char *path,int length);	// プラグインのあるパス名の取得
+// 時間とフレーム番号の変換
+inline
+int time2frame(int h, int m, int s, int ms, int rate, int scale) {
+	s = s * 1000 + ms;
+	LONGLONG t = (LONGLONG)h * 36000000000 + (LONGLONG)m * 600000000 + (LONGLONG)s * 10000;
+
+	// 近い整数に丸まるように少し足す
+	int frame = (int)((t * rate + scale * 10000000 / 10) / scale / 10000000);
+	if(frame < 0) frame = 0;
+}
+
+inline
+std::string frame2time(int frame, int rate, int scale) {
+	LONGLONG t = (LONGLONG)frame * 10000000 * scale / rate;
+	int h = (int)(t / 36000000000);
+	int m = (int)((t - h * 36000000000) / 600000000);
+	double s = (t - h * 36000000000 - m * 600000000) / 10000000.0;
+
+	char ret[50];
+	sprintf_s(ret, "%02d:%02d:%06.3f", h, m, s);
+	return std::string(ret);
+}
+
+// AviUtlのBuild番号の取得(0.99e2以降)
+inline
+int my_getbuild(FILTER *fp,void *editp) {
+	SYS_INFO sip;
+
+	fp->exfunc->get_sys_info(editp,&sip);
+	return sip.build < VER_99e2 ? 0 : sip.build;
+}
+// AviUtlのフォントの取得
+inline
+HFONT my_getfont(FILTER *fp,void *editp) {
+	SYS_INFO sip;
+
+	fp->exfunc->get_sys_info(editp,&sip);
+	return sip.hfont ? sip.hfont : (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+}
+
+// AviUtlのスレッド数を取得
+inline
+void my_multi_thread_func(int thread_id,int thread_num,void *param1,void *param2){
+	int *threads = (int *) param1;
+	*threads = thread_num;
+}
+inline
+int my_numthreads(FILTER *fp) {
+	int num_threads;
+
+	if(!fp->exfunc->exec_multi_thread_func) return 1;
+	fp->exfunc->exec_multi_thread_func(my_multi_thread_func,(void*)&num_threads,NULL);
+	return num_threads;
+}
+
+// SJISの1文字目判定
+inline
+bool my_sjis(char *chr,int pos) {
+	PUCHAR chr2 = (PUCHAR)chr;
+	UCHAR c;
+
+	if(pos < 0) return false;
+	c = chr2[pos];
+	if((c >= 0x81 && c <= 0x9f)||(c >= 0xe0 && c <= 0xfc)) return true;
+	return false;
+}
+
+// パス名の抽出（ファイル名の前まで）
+inline
+void my_getpath(char *path,int length) {
+	int pos = 0;
+
+	for(int i = 0; i < length; i++) {
+		if(path[i] == NULL) break;
+		if(path[i] == '\\' && !my_sjis(path,i-1)) pos = i;
+	}
+
+	path[pos+1] = NULL;
+}
+
+// AviUtlのあるパス名の取得
+inline
+void my_getexepath(char *path,int length) {
+	GetModuleFileName(NULL,path,length);
+	my_getpath(path,length);
+}
+
+// プラグインのあるパス名の取得
+inline
+void my_getaufpath(FILTER *fp,char *path,int length) {
+	GetModuleFileName(fp->dll_hinst,path,length);
+	my_getpath(path,length);
+}

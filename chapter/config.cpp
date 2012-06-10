@@ -4,6 +4,9 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <cstdio>
+#include <tchar.h>
+#include <string>
+#include <regex>
 #include <process.h>
 #include <time.h>	//[ru]追加
 #include <emmintrin.h> //[ru] 追加
@@ -309,6 +312,62 @@ void CfgDlg::DelList() {
 	}
 	if (m_numChapter) {
 		ShowList(min(sel, m_numChapter - 1));
+	}
+}
+
+void CfgDlg::NextList() {
+	if(m_loadfile == false){
+		return;	//ファイルが読み込まれていない
+	}
+	LRESULT sel = SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_GETCURSEL, 0, 0);
+	if(sel == LB_ERR) {
+		return;
+	}
+	if (sel + 1 < m_numChapter) {
+		SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, sel+1, 0);
+		Seek();
+	}
+}
+
+void CfgDlg::PrevList() {
+	if(m_loadfile == false){
+		return;	//ファイルが読み込まれていない
+	}
+	LRESULT sel = SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_GETCURSEL, 0, 0);
+	if(sel == LB_ERR) {
+		return;
+	}
+	if (0 < sel) {
+		SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, sel-1, 0);
+		Seek();
+	}
+}
+
+void CfgDlg::NextHereList() {
+	if(m_loadfile == false){
+		return;	//ファイルが読み込まれていない
+	}
+	int frame = m_exfunc->get_frame(m_editp);
+	for(int i=0; i<m_numChapter; ++i) {
+		if (frame < m_Frame[i]) {
+			SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, i, 0);
+			Seek();
+			break;
+		}
+	}
+}
+
+void CfgDlg::PrevHereList() {
+	if(m_loadfile == false){
+		return;	//ファイルが読み込まれていない
+	}
+	int frame = m_exfunc->get_frame(m_editp);
+	for(int i=0; i<m_numChapter; ++i) {
+		if (frame < m_Frame[i] + atoi(m_strTitle[i])) {
+			SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, i-1, 0);
+			Seek();
+			break;
+		}
 	}
 }
 
@@ -668,6 +727,9 @@ void CfgDlg::Seek() {
 void CfgDlg::SetFrameN(void *editp,int frame_n) {
 	m_numFrame = frame_n;
 	m_editp = editp;
+	if (frame_n == 0) {
+		m_loadfile = false;
+	}
 }
 
 void CfgDlg::SetFrame(int frame) {
@@ -793,9 +855,6 @@ void CfgDlg::Load() {
 	LoadFromFile(path);
 }
 
-#include <regex>
-#include <tchar.h>
-
 void CfgDlg::LoadFromFile(char *filename) {
 	FILE *file;
 	char str[STRLEN+2];
@@ -807,18 +866,20 @@ void CfgDlg::LoadFromFile(char *filename) {
 		return;
 	}
 
-	const std::tr1::basic_regex<TCHAR> re(_T("CHAPTER(\\d\\d\\d?)=(\\d\\d):(\\d\\d):(\\d\\d)\\.(\\d\\d\\d)"));
+	const std::tr1::basic_regex<TCHAR> re1(_T("^CHAPTER(\\d\\d\\d?)=(\\d\\d):(\\d\\d):(\\d\\d)\\.(\\d\\d\\d)"));
+	const std::tr1::basic_regex<TCHAR> re2(_T("^CHAPTER(\\d\\d\\d?)NAME=(.*(SCPOS:(\\d+))?.*)$"));
 
 	m_numChapter = 0;
 
 	while(true) {
+		// 時間の処理
 		if(fgets(str,STRLEN,file) == NULL) break;
 		//                       0123456789012345678901
 		if(strlen(str) < sizeof("CHAPTER00=00:00:00.000")) break;
 
 		std::tr1::match_results<std::string::const_iterator> results;
 		std::string stds(str);
-		if (std::tr1::regex_search(stds, results, re) == FALSE) {
+		if (std::tr1::regex_search(stds, results, re1) == FALSE) {
 			break;
 		}
 		h = atoi(results.str(2).c_str());
@@ -830,37 +891,41 @@ void CfgDlg::LoadFromFile(char *filename) {
 		frame = (int)((t * m_rate + m_scale * 10000000 / 10) / m_scale / 10000000);
 		if(frame < 0) frame = 0;
 
+		// 名前の処理
 		if(fgets(str,STRLEN,file) == NULL) break;
 		//                       01234567890123
 		if(strlen(str) < sizeof("CHAPTER00NAME=")) break;
-		// 3ケタ対応（仮）
+
+		// strip
 		for(int i = 0;i < STRLEN;i++) {
 			if(str[i] == '\n' || str[i] == '\r') {
-				str[i] = 0; break;
+				str[i] = '\0'; break;
 			}
 		}
-		char *p = strstr(str, "NAME=");
-		if (p) {
-			strcpy_s(m_strTitle[m_numChapter], STRLEN, p+5);
+
+		stds = str;
+		if (std::tr1::regex_search(stds, results, re2) == FALSE) {
+			break;
 		}
 		
 		m_Frame[m_numChapter] = frame;
 		m_SCPos[m_numChapter] = -1;
+		strcpy_s(m_strTitle[m_numChapter], results.str(2).c_str());
 
-		char *scPos = strstr(m_strTitle[m_numChapter], "SCPos:");
-		int scFrame;
-		if (scPos) {
-			scFrame = atoi(scPos + strlen("SCPos:"));
+		// SC位置情報の取得
+		if (results.length(3) > 0) {
+			int scFrame = atoi(results.str(4).c_str());
 			m_SCPos[m_numChapter] = scFrame - frame;
+			
+			// マーク付与
+			if (IsDlgButtonChecked(m_fp->hwnd, IDC_SCMARK)){
+				FRAME_STATUS frameStatus;
+				m_exfunc->get_frame_status(m_editp, scFrame, &frameStatus);
+				frameStatus.edit_flag |= EDIT_FRAME_EDIT_FLAG_MARKFRAME;
+				m_exfunc->set_frame_status(m_editp, scFrame, &frameStatus);
+			}
 		}
-
-		if (IsDlgButtonChecked(m_fp->hwnd, IDC_SCMARK)){
-			FRAME_STATUS frameStatus;
-			m_exfunc->get_frame_status(m_editp, scFrame, &frameStatus);
-			frameStatus.edit_flag |= EDIT_FRAME_EDIT_FLAG_MARKFRAME;
-			m_exfunc->set_frame_status(m_editp, scFrame, &frameStatus);
-		}
-
+		
 		m_numChapter++;
 		if(m_numChapter >= MAXCHAPTER) break;
 	}

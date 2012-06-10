@@ -125,6 +125,12 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 		case WM_FILTER_INIT:
 			g_config.Init(hwnd,editp,fp);
 			
+			fp->exfunc->add_menu_item(fp, "前のチャプター", hwnd, IDM_CHAP_PREV, 0, 0);
+			fp->exfunc->add_menu_item(fp, "次のチャプター", hwnd, IDM_CHAP_NEXT, 0, 0);
+			fp->exfunc->add_menu_item(fp, "現在のフレームの前のチャプター", hwnd, IDM_CHAP_PREVHERE, 0, 0);
+			fp->exfunc->add_menu_item(fp, "現在のフレームの後のチャプター", hwnd, IDM_CHAP_NEXTHERE, 0, 0);
+			fp->exfunc->add_menu_item(fp, "チャプターを削除", hwnd, IDM_CHAP_DELETE, 0, 0);
+
 			// ドラッグ＆ドロップ対応
 			DragAcceptFiles(hwnd, TRUE);
 
@@ -159,6 +165,25 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 		case WM_FILTER_FILE_CLOSE:
 			g_config.SetFrameN(NULL, 0);
 			g_config.SetFps(10, 10);
+			break;
+		case WM_FILTER_COMMAND:
+			switch(wparam) {
+			case IDM_CHAP_NEXT:
+				g_config.NextList();
+				return TRUE;
+			case IDM_CHAP_PREV:
+				g_config.PrevList();
+				return TRUE;
+			case IDM_CHAP_NEXTHERE:
+				g_config.NextHereList();
+				return TRUE;
+			case IDM_CHAP_PREVHERE:
+				g_config.PrevHereList();
+				return TRUE;
+			case IDM_CHAP_DELETE:
+				g_config.DelList();
+				return TRUE;
+			}
 			break;
 		// DnD
 		case WM_DROPFILES:

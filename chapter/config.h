@@ -7,10 +7,13 @@
 #include <string>
 #include "filter.h"
 
-#define NUMHIS 30	// 保存する履歴の数
-#define STRLEN 256	// 文字列の最大長
+#ifndef _CHAPTER_CONFIG_H_
+#define _CHAPTER_CONFIG_H_
 
-#define MAXCHAPTER 500
+const int NUMHIS = 30;	// 保存する履歴の数
+const int STRLEN = 256;	// 文字列の最大長
+
+const int MAXCHAPTER = 500;
 
 class CfgDlg;
 
@@ -60,6 +63,10 @@ public:
 	void SetFrameN(void *editp,int frame_n);
 	void AddList();
 	void DelList();
+	void NextList();
+	void PrevList();
+	void NextHereList();
+	void PrevHereList();
 	void Seek();
 	void Save();
 	void AutoSave();
@@ -74,3 +81,5 @@ public:
 
 	void UpdateFramePos();
 };
+
+#endif
