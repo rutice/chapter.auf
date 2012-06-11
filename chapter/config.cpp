@@ -363,7 +363,7 @@ void CfgDlg::PrevHereList() {
 	}
 	int frame = m_exfunc->get_frame(m_editp);
 	for(int i=0; i<m_numChapter; ++i) {
-		if (frame < m_Frame[i] + atoi(m_strTitle[i])) {
+		if (frame < m_Frame[i] + atoi(m_strTitle[i]) + 5) {
 			SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, i-1, 0);
 			Seek();
 			break;
@@ -867,7 +867,7 @@ void CfgDlg::LoadFromFile(char *filename) {
 	}
 
 	const std::tr1::basic_regex<TCHAR> re1(_T("^CHAPTER(\\d\\d\\d?)=(\\d\\d):(\\d\\d):(\\d\\d)\\.(\\d\\d\\d)"));
-	const std::tr1::basic_regex<TCHAR> re2(_T("^CHAPTER(\\d\\d\\d?)NAME=(.*(SCPOS:(\\d+))?.*)$"));
+	const std::tr1::basic_regex<TCHAR> re2(_T("^CHAPTER(\\d\\d\\d?)NAME=(.*)$"));
 
 	m_numChapter = 0;
 
@@ -913,8 +913,11 @@ void CfgDlg::LoadFromFile(char *filename) {
 		strcpy_s(m_strTitle[m_numChapter], results.str(2).c_str());
 
 		// SC位置情報の取得
-		if (results.length(3) > 0) {
-			int scFrame = atoi(results.str(4).c_str());
+		const char *szSCPosMark = "SCPos:";
+		char *pscpos = strstr(m_strTitle[m_numChapter], szSCPosMark);
+		if (pscpos) {
+			pscpos += strlen(szSCPosMark);
+			int scFrame = atoi(pscpos);
 			m_SCPos[m_numChapter] = scFrame - frame;
 			
 			// マーク付与
@@ -1247,7 +1250,10 @@ void CfgDlg::UpdateFramePos()
 	int pos = 0; // 新しい位置
 	int bCutInserted = false;
 	for(int n=0; n<orgNum && pos < MAXCHAPTER; n++){
-		if(pos > 0 && orgFrame[n] >= stFrame && orgFrame[n] <= edFrame){
+		if(stFrame <= orgFrame[n] && orgFrame[n] <= edFrame){
+			if (pos == 0) {
+				continue;
+			}
 			if (bCutInserted == false) {
 				bCutInserted = true;
 				if (m_Frame[pos-1] + 30 > stFrame) {
