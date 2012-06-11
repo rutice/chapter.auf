@@ -363,7 +363,9 @@ void CfgDlg::PrevHereList() {
 	}
 	int frame = m_exfunc->get_frame(m_editp);
 	for(int i=0; i<m_numChapter; ++i) {
-		if (frame < m_Frame[i] + atoi(m_strTitle[i]) + 5) {
+		int seekPos = m_Frame[i];
+		seekPos += m_SCPos[i] != -1 ? m_SCPos[i] : atoi(m_strTitle[i]) + 5;
+		if (frame <= seekPos) {
 			SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, i-1, 0);
 			Seek();
 			break;
@@ -1260,6 +1262,7 @@ void CfgDlg::UpdateFramePos()
 					pos--;
 				}
 				m_Frame[pos] = stFrame;
+				m_SCPos[pos] = 0;
 				sprintf_s(m_strTitle[pos], STRLEN, "編集点 (間隔：%d)", diff);
 				pos++;
 			}
