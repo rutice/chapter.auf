@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------
-//	入力プラグイン ヘッダーファイル for AviUtl version 0.99d 以降
+//	入力プラグイン ヘッダーファイル for AviUtl version 0.99k 以降
 //	By ＫＥＮくん
 //----------------------------------------------------------------------------------
 
@@ -8,6 +8,8 @@ typedef struct {
 	int					flag;				//	フラグ
 											//	INPUT_INFO_FLAG_VIDEO	: 画像データあり
 											//	INPUT_INFO_FLAG_AUDIO	: 音声データあり
+											//	INPUT_INFO_FLAG_VIDEO_RANDOM_ACCESS	: キーフレームを気にせずにfunc_read_video()を呼び出します
+											//	※標準ではキーフレームからシーケンシャルにfunc_read_video()が呼ばれるように制御されます
 	int					rate,scale;			//	フレームレート
 	int					n;					//	フレーム数
 	BITMAPINFOHEADER	*format;			//	画像フォーマットへのポインタ(次に関数が呼ばれるまで内容を有効にしておく)
@@ -18,8 +20,9 @@ typedef struct {
 	DWORD				handler;			//	画像codecハンドラ
 	int					reserve[7];
 } INPUT_INFO;
-#define	INPUT_INFO_FLAG_VIDEO	1
-#define	INPUT_INFO_FLAG_AUDIO	2
+#define	INPUT_INFO_FLAG_VIDEO				1
+#define	INPUT_INFO_FLAG_AUDIO				2
+#define	INPUT_INFO_FLAG_VIDEO_RANDOM_ACCESS	8
 //	※画像フォーマットにはRGB,YUY2とインストールされているcodecのものが使えます。
 //	また、'Y''C''4''8'(biBitCountは48)でPIXEL_YC形式フォーマットで扱えます。(YUY2フィルタモードでは使用出来ません)
 //	音声フォーマットにはPCMとインストールされているcodecのものが使えます。

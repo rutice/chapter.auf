@@ -94,8 +94,8 @@
     <None Include="chapter.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\111\trunk\chapter\filter.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="filter.h" />
     <ClInclude Include="mylib.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
