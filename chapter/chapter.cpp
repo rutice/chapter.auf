@@ -127,8 +127,8 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 			
 			fp->exfunc->add_menu_item(fp, "前のチャプター", hwnd, IDM_CHAP_PREV, 0, 0);
 			fp->exfunc->add_menu_item(fp, "次のチャプター", hwnd, IDM_CHAP_NEXT, 0, 0);
-			fp->exfunc->add_menu_item(fp, "現在のフレームの前のチャプター", hwnd, IDM_CHAP_PREVHERE, 0, 0);
-			fp->exfunc->add_menu_item(fp, "現在のフレームの後のチャプター", hwnd, IDM_CHAP_NEXTHERE, 0, 0);
+			fp->exfunc->add_menu_item(fp, "現在のフレームの前のチャプター", hwnd, IDM_CHAP_PREVHERE, VK_OEM_PERIOD, 0);
+			fp->exfunc->add_menu_item(fp, "現在のフレームの後のチャプター", hwnd, IDM_CHAP_NEXTHERE, VK_OEM_2, 0);
 			fp->exfunc->add_menu_item(fp, "チャプターを削除", hwnd, IDM_CHAP_DELETE, 0, 0);
 
 			// ドラッグ＆ドロップ対応
