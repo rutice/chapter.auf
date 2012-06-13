@@ -115,7 +115,59 @@ LRESULT CALLBACK WindowMessageProc(int nCode, WPARAM wp, LPARAM lp)
 	return CallNextHookEx(g_hMessageHook, nCode, wp, lp);
 }
 
+BOOL SearchFile(const char *lpcSearch, char *lpOut, int cch) {
+	WIN32_FIND_DATA ffd;
+	HANDLE hFind = FindFirstFile(lpcSearch, &ffd);
+	if (hFind == INVALID_HANDLE_VALUE) {
+		return FALSE;
+	}
+	while ((ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
+		if (!FindNextFile(hFind, &ffd)) {
+			break;
+		}
+	}
+	BOOL bRet = FALSE;
+	if (GetLastError() != ERROR_NO_MORE_FILES) {
+		strcpy_s(lpOut, cch, ffd.cFileName);
+		bRet = TRUE;
+	}
+	FindClose(hFind);
+	return bRet;
+}
 
+BOOL OnDropFiles(WPARAM wparam, LPARAM lparam, void *editp, FILTER *fp) {
+	HDROP hDrop = (HDROP)wparam;
+	int nFiles = DragQueryFile(hDrop, -1, NULL, 0);
+	char szFile[2000];
+	DragQueryFile(hDrop, 0, szFile, 1000);
+	char *pExt = PathFindExtension(szFile);
+	if (_stricmp(pExt, ".txt") == 0) {
+		// chapterファイル
+		g_config.LoadFromFile(szFile);
+	} else if (nFiles > 1) {
+		// 1つめが映像、2つめが音声と期待
+		fp->exfunc->edit_open(editp, szFile, 0);
+		DragQueryFile(hDrop, 1, szFile, 1000);
+		fp->exfunc->edit_open(editp, szFile, EDIT_OPEN_FLAG_AUDIO);
+	} else if (_stricmp(pExt, ".wav") == 0 || _stricmp(pExt, ".aac") == 0) {
+		// wav, aacファイル(読める入力プラグインがあることを期待)
+		fp->exfunc->edit_open(editp, szFile, EDIT_OPEN_FLAG_AUDIO);
+	} else if (_stricmp(pExt, ".ts") == 0 || _stricmp(pExt, ".m2v") == 0) {
+		// ts, m2vファイル (別に音声ファイルがあれば読み込む)
+		fp->exfunc->edit_open(editp, szFile, 0);
+		strcpy_s(pExt, 100, "*.wav");
+		if (SearchFile(szFile, PathFindFileName(szFile), 1000)) {
+				fp->exfunc->edit_open(editp, szFile, EDIT_OPEN_FLAG_AUDIO);
+		} else {
+			strcpy_s(pExt, 100, "*.aac");
+			if (SearchFile(szFile, PathFindFileName(szFile), 1000)) {
+				fp->exfunc->edit_open(editp, szFile, EDIT_OPEN_FLAG_AUDIO);
+			}
+		}
+	}
+	DragFinish(hDrop);
+	return TRUE;
+}
 
 BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp,FILTER *fp)
 {
@@ -187,13 +239,7 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 			break;
 		// DnD
 		case WM_DROPFILES:
-			char szFile[1000];
-			DragQueryFile((HDROP)wparam, 0, szFile, 1000);
-			if (strstr(szFile, ".txt")) {
-				g_config.LoadFromFile(szFile);
-			}
-			DragFinish((HDROP)wparam);
-			break;
+			return OnDropFiles(wparam, lparam, editp, fp);
 		//ここまで
 		case WM_COMMAND:
 			switch(LOWORD(wparam)) {
