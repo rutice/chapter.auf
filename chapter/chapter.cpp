@@ -11,12 +11,15 @@
 #pragma comment(lib, "Shlwapi.lib")
 #pragma comment(lib, "imm32.lib")
 
+const int MIN_WIDTH = 550;
+const int MIN_HEIGHT = 435;
+
 //---------------------------------------------------------------------
 //		フィルタ構造体定義
 //---------------------------------------------------------------------
 FILTER_DLL filter = {
-	FILTER_FLAG_ALWAYS_ACTIVE|FILTER_FLAG_MAIN_MESSAGE|FILTER_FLAG_WINDOW_SIZE|FILTER_FLAG_DISP_FILTER|FILTER_FLAG_EX_INFORMATION,	// int flag
-	567,435,	// int x,y
+	FILTER_FLAG_ALWAYS_ACTIVE|FILTER_FLAG_MAIN_MESSAGE|FILTER_FLAG_WINDOW_THICKFRAME|FILTER_FLAG_WINDOW_SIZE|FILTER_FLAG_DISP_FILTER|FILTER_FLAG_EX_INFORMATION,	// int flag
+	MIN_WIDTH, MIN_HEIGHT,	// int x,y
 	"チャプター編集",	// TCHAR *name
 	NULL,NULL,NULL,	// int track_n, TCHAR **track_name, int *track_default
 	NULL,NULL,	// int *track_s, *track_e
@@ -240,7 +243,16 @@ BOOL func_WndProc(HWND hwnd,UINT message,WPARAM wparam,LPARAM lparam,void *editp
 		// DnD
 		case WM_DROPFILES:
 			return OnDropFiles(wparam, lparam, editp, fp);
-		//ここまで
+
+		case WM_GETMINMAXINFO:
+			((MINMAXINFO*)lparam)->ptMinTrackSize.x = MIN_WIDTH;
+			((MINMAXINFO*)lparam)->ptMinTrackSize.y = MIN_HEIGHT;
+			break;
+
+		case WM_SIZE:
+			g_config.Resize();
+			break;
+
 		case WM_COMMAND:
 			switch(LOWORD(wparam)) {
 				case IDC_BUADD:

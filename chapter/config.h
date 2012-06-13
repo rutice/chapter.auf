@@ -58,6 +58,7 @@ public:
 
 	void ShowList(int defSelect = -1);
 	void Init(HWND hwnd,void *editp,FILTER *fp);
+	void Resize();
 	void SetFrame(int frame);
 	void SetFps(int rate,int scale);
 	void SetFrameN(void *editp,int frame_n);

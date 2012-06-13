@@ -81,49 +81,51 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 
 	// ウインドウの作成（部品追加）
 	SendMessage(hwnd,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindowEx(WS_EX_CLIENTEDGE,"LISTBOX","",WS_CHILD|WS_VISIBLE|LBS_NOTIFY|WS_VSCROLL|WS_TABSTOP,14,12,448,335,hwnd,(HMENU)IDC_LIST1,hinst,0);
+	CreateWindowEx(WS_EX_CLIENTEDGE,"LISTBOX","",WS_CHILD|WS_VISIBLE|LBS_NOTIFY|WS_VSCROLL|WS_TABSTOP,0,0,448,335,hwnd,(HMENU)IDC_LIST1,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_LIST1,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE|ES_READONLY,48,348,190,20,hwnd,(HMENU)IDC_EDTIME,hinst,0);
+	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE|ES_READONLY,48,336,190,20,hwnd,(HMENU)IDC_EDTIME,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDTIME,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindowEx(WS_EX_CLIENTEDGE,"COMBOBOX","",WS_CHILD|WS_VISIBLE|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP,48,380,417,120,hwnd,(HMENU)IDC_EDNAME,hinst,0);
+	CreateWindowEx(WS_EX_CLIENTEDGE,"COMBOBOX","",WS_CHILD|WS_VISIBLE|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP,48,357,400,120,hwnd,(HMENU)IDC_EDNAME,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDNAME,WM_SETFONT,(WPARAM)hfont2,0);
-	CreateWindow("BUTTON","保存",WS_CHILD|WS_VISIBLE,480,12,73,22,hwnd,(HMENU)IDC_BUSAVE,hinst,0);
+	CreateWindow("BUTTON","保存",WS_CHILD|WS_VISIBLE,450,12,73,22,hwnd,(HMENU)IDC_BUSAVE,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUSAVE,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","読込",WS_CHILD|WS_VISIBLE,480,40,73,22,hwnd,(HMENU)IDC_BULOAD,hinst,0);
+	CreateWindow("BUTTON","読込",WS_CHILD|WS_VISIBLE,450,40,73,22,hwnd,(HMENU)IDC_BULOAD,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BULOAD,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","自動出力",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,65,73,22,hwnd,(HMENU)IDC_CHECK1,hinst,0);
+	CreateWindow("BUTTON","自動出力",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,450,65,73,22,hwnd,(HMENU)IDC_CHECK1,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_CHECK1,WM_SETFONT,(WPARAM)hfont,0);
 	//[ru]ボタン追加
-	CreateWindow("BUTTON","無音部分",WS_CHILD|WS_VISIBLE,480,100,73,22,hwnd,(HMENU)IDC_BUDETECT,hinst,0);
+	CreateWindow("BUTTON","無音部分",WS_CHILD|WS_VISIBLE,450,100,73,22,hwnd,(HMENU)IDC_BUDETECT,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUDETECT,WM_SETFONT,(WPARAM)hfont,0);
 	
-	CreateWindow("STATIC","連続",WS_CHILD|WS_VISIBLE,480,130,73,22,hwnd,(HMENU)IDC_STATICa,hinst,0);
+	CreateWindow("STATIC","連続",WS_CHILD|WS_VISIBLE,450,130,73,22,hwnd,(HMENU)IDC_STATICa,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATICa,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,520,127,33,22,hwnd,(HMENU)IDC_EDITSERI,hinst,0);
+	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,490,127,33,22,hwnd,(HMENU)IDC_EDITSERI,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDITSERI,WM_SETFONT,(WPARAM)hfont,0);
 
-	CreateWindow("STATIC","閾値",WS_CHILD|WS_VISIBLE,480,160,73,22,hwnd,(HMENU)IDC_STATICb,hinst,0);
+	CreateWindow("STATIC","閾値",WS_CHILD|WS_VISIBLE,450,160,73,22,hwnd,(HMENU)IDC_STATICb,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATICb,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,520,157,33,22,hwnd,(HMENU)IDC_EDITMUTE,hinst,0);
+	CreateWindowEx(WS_EX_CLIENTEDGE,"EDIT","",WS_CHILD|WS_VISIBLE,490,157,33,22,hwnd,(HMENU)IDC_EDITMUTE,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_EDITMUTE,WM_SETFONT,(WPARAM)hfont,0);
 	
-	CreateWindow("BUTTON","SC位置",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,215,73,22,hwnd,(HMENU)IDC_CHECKSC,hinst,0);
+	CreateWindow("BUTTON","SC位置",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,450,215,73,22,hwnd,(HMENU)IDC_CHECKSC,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_CHECKSC,WM_SETFONT,(WPARAM)hfont,0);
 	//--ここまで
-	CreateWindow("BUTTON","全SC検出",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,240,90,22,hwnd,(HMENU)IDC_PRECHECK,hinst,0);
+	CreateWindow("BUTTON","全SC検出",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,450,240,90,22,hwnd,(HMENU)IDC_PRECHECK,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_PRECHECK,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","mark付与",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,480,265,90,22,hwnd,(HMENU)IDC_SCMARK,hinst,0);
+	CreateWindow("BUTTON","mark付与",WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,450,265,90,22,hwnd,(HMENU)IDC_SCMARK,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_SCMARK,WM_SETFONT,(WPARAM)hfont,0);
 
 
-	CreateWindow("BUTTON","削除",WS_CHILD|WS_VISIBLE,480,346,73,22,hwnd,(HMENU)IDC_BUDEL,hinst,0);
+	CreateWindow("BUTTON","削除",WS_CHILD|WS_VISIBLE,450,335,73,22,hwnd,(HMENU)IDC_BUDEL,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUDEL,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("BUTTON","追加",WS_CHILD|WS_VISIBLE,480,377,73,22,hwnd,(HMENU)IDC_BUADD,hinst,0);
+	CreateWindow("BUTTON","追加",WS_CHILD|WS_VISIBLE,450,360,73,22,hwnd,(HMENU)IDC_BUADD,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_BUADD,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("STATIC","時間",WS_CHILD|WS_VISIBLE,12,351,31,17,hwnd,(HMENU)IDC_STATIC1,hinst,0);
+	CreateWindow("STATIC","時間",WS_CHILD|WS_VISIBLE,12,336,31,17,hwnd,(HMENU)IDC_STATIC1,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATIC1,WM_SETFONT,(WPARAM)hfont,0);
-	CreateWindow("STATIC","名称",WS_CHILD|WS_VISIBLE,12,384,31,17,hwnd,(HMENU)IDC_STATIC2,hinst,0);
+	CreateWindow("STATIC","名称",WS_CHILD|WS_VISIBLE,12,360,31,17,hwnd,(HMENU)IDC_STATIC2,hinst,0);
 	SendDlgItemMessage(hwnd,IDC_STATIC2,WM_SETFONT,(WPARAM)hfont,0);
+
+	Resize();
 
 	// tooltip
 	struct {
@@ -182,6 +184,70 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	CheckDlgButton(hwnd, IDC_PRECHECK, m_exfunc->ini_load_int(fp,"PrecheckSC", 0));
 	CheckDlgButton(hwnd, IDC_SCMARK, m_exfunc->ini_load_int(fp,"SCMark", 0));
 	//ここまで
+}
+
+void CfgDlg::Resize() {
+	if (!m_hDlg) {
+		return;
+	}
+
+	RECT rc;
+	GetClientRect(m_hDlg, &rc);
+	int w = rc.right;
+	int h = rc.bottom;
+
+	int left = w - 80;
+	int bottom = h - 55;
+
+	GetWindowRect(GetDlgItem(m_hDlg, IDC_LIST1), &rc);
+	int oldLeft = rc.right - rc.left;
+	int oldTop = rc.bottom - rc.top;
+
+	MoveWindow(GetDlgItem(m_hDlg, IDC_LIST1), 0, 0, left, bottom, TRUE);
+
+	GetWindowRect(GetDlgItem(m_hDlg, IDC_LIST1), &rc);
+	bottom = rc.bottom - rc.top;
+
+	int rightItems[] = {
+		IDC_BUSAVE,
+		IDC_BULOAD,
+		IDC_CHECK1,
+		IDC_BUDETECT,
+		IDC_STATICa,
+		IDC_EDITSERI,
+		IDC_STATICb,
+		IDC_EDITMUTE,
+		IDC_CHECKSC,
+		IDC_PRECHECK,
+		IDC_SCMARK,
+		IDC_BUDEL,
+		IDC_BUADD,
+		0
+	};
+
+	for (int i=0; rightItems[i]; ++i) {
+		HWND hItem = GetDlgItem(m_hDlg, rightItems[i]);
+		GetWindowRect(hItem, &rc);
+		MapWindowPoints(NULL, m_hDlg, (LPPOINT)&rc, 2);
+		MoveWindow(hItem, rc.left + left - oldLeft, rc.top, rc.right - rc.left, rc.bottom  - rc.top, TRUE);
+	}
+
+	int bottomItems[] = {
+		IDC_EDTIME,
+		IDC_EDNAME,
+		IDC_STATIC1,
+		IDC_STATIC2,
+		IDC_BUDEL,
+		IDC_BUADD,
+		0,
+	};
+
+	for (int i=0; bottomItems[i]; ++i) {
+		HWND hItem = GetDlgItem(m_hDlg, bottomItems[i]);
+		GetWindowRect(hItem, &rc);
+		MapWindowPoints(NULL, m_hDlg, (LPPOINT)&rc, 2);
+		MoveWindow(hItem, rc.left, rc.top + bottom - oldTop, rc.right - rc.left, rc.bottom  - rc.top, TRUE);
+	}
 }
 
 void CfgDlg::AutoSaveCheck() {
