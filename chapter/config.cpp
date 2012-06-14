@@ -410,33 +410,45 @@ void CfgDlg::PrevList() {
 }
 
 void CfgDlg::NextHereList() {
-	if(m_loadfile == false){
-		return;	//ファイルが読み込まれていない
+	if(!m_loadfile || !m_numChapter){
+		return;	//ファイルが読み込まれていない or チャプターがない
 	}
 	int frame = m_exfunc->get_frame(m_editp);
 	for(int i=0; i<m_numChapter; ++i) {
 		if (frame < m_Frame[i]) {
 			SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, i, 0);
 			Seek();
-			break;
+			return;
 		}
 	}
+	// 最後にシーク
+	SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, -1, 0);
+	m_exfunc->set_frame(m_editp, m_exfunc->get_frame_n(m_editp) - 1);
 }
 
 void CfgDlg::PrevHereList() {
-	if(m_loadfile == false){
-		return;	//ファイルが読み込まれていない
+	if(!m_loadfile || !m_numChapter){
+		return;	//ファイルが読み込まれていない or チャプターがない
 	}
 	int frame = m_exfunc->get_frame(m_editp);
 	for(int i=0; i<m_numChapter; ++i) {
 		int seekPos = m_Frame[i];
 		seekPos += m_SCPos[i] != -1 ? m_SCPos[i] : atoi(m_strTitle[i]) + 5;
 		if (frame <= seekPos) {
+			if (i == 0) {
+				// 最初にシーク
+				SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, -1, 0);
+				m_exfunc->set_frame(m_editp, 0);
+				return;
+			}
 			SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, i-1, 0);
 			Seek();
-			break;
+			return;
 		}
 	}
+	// 最後のチャプターにシーク
+	SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_SETCURSEL, m_numChapter - 1, 0);
+	Seek();
 }
 
 //[ru]IIR_3DNRより拝借
