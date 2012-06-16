@@ -49,6 +49,7 @@ class CfgDlg
 	int m_autosave;
 
 	void AddHis();
+	bool SaveToFile(const char *lpFile);
 
 public:
 	int m_numChapter;

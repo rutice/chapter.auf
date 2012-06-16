@@ -50,22 +50,25 @@ inline void my_rgb2yc(int R,int G,int B,short *Y,short *Cb,short *Cr) {
 inline
 int time2frame(int h, int m, int s, int ms, int rate, int scale) {
 	s = s * 1000 + ms;
-	LONGLONG t = (LONGLONG)h * 36000000000 + (LONGLONG)m * 600000000 + (LONGLONG)s * 10000;
+	LONGLONG t = (LONGLONG)h * 3600000 + (LONGLONG)m * 60000 + (LONGLONG)s;
 
-	// 近い整数に丸まるように少し足す
-	int frame = (int)((t * rate + scale * 10000000 / 10) / scale / 10000000);
-	if(frame < 0) frame = 0;
+	// 端数は四捨五入
+	int frame = (int)(t * rate / scale / (1000 / 10) + 5) / 10;
+	if (frame < 0) {
+		frame = 0;
+	}
+	return frame;
 }
 
 inline
 std::string frame2time(int frame, int rate, int scale) {
 	LONGLONG t = (LONGLONG)frame * 10000000 * scale / rate;
-	int h = (int)(t / 36000000000);
-	int m = (int)((t - h * 36000000000) / 600000000);
+	LONGLONG h = (t / 36000000000);
+	LONGLONG m = ((t - h * 36000000000) / 600000000);
 	double s = (t - h * 36000000000 - m * 600000000) / 10000000.0;
 
 	char ret[50];
-	sprintf_s(ret, "%02d:%02d:%06.3f", h, m, s);
+	sprintf_s(ret, "%02d:%02d:%06.3f", (int)h, (int)m, s);
 	return std::string(ret);
 }
 
@@ -101,29 +104,13 @@ int my_numthreads(FILTER *fp) {
 	return num_threads;
 }
 
-// SJISの1文字目判定
-inline
-bool my_sjis(char *chr,int pos) {
-	PUCHAR chr2 = (PUCHAR)chr;
-	UCHAR c;
-
-	if(pos < 0) return false;
-	c = chr2[pos];
-	if((c >= 0x81 && c <= 0x9f)||(c >= 0xe0 && c <= 0xfc)) return true;
-	return false;
-}
-
 // パス名の抽出（ファイル名の前まで）
 inline
 void my_getpath(char *path,int length) {
-	int pos = 0;
-
-	for(int i = 0; i < length; i++) {
-		if(path[i] == NULL) break;
-		if(path[i] == '\\' && !my_sjis(path,i-1)) pos = i;
+	char *p = PathFindFileName(path);
+	if (p) {
+		*p = '\0';
 	}
-
-	path[pos+1] = NULL;
 }
 
 // AviUtlのあるパス名の取得

@@ -1,15 +1,13 @@
 ﻿//---------------------------------------------------------------------
 //		プラグイン設定
 //---------------------------------------------------------------------
-#include <windows.h>
-#include <commctrl.h>
+#include <Windows.h>
+#include <CommCtrl.h>
+#include <Shlwapi.h>
 #include <cstdio>
-#include <tchar.h>
 #include <string>
 #include <regex>
-#include <process.h>
-#include <time.h>	//[ru]追加
-#include <emmintrin.h> //[ru] 追加
+#include <emmintrin.h>
 #include "resource.h"
 #include "config.h"
 #include "mylib.h"
@@ -269,18 +267,13 @@ void CfgDlg::SetFps(int rate,int scale) {
 }
 
 void CfgDlg::ShowList(int nSelect) {
-	LONGLONG t,h,m;
-	double s;
-	char str[STRLEN];
+	char str[STRLEN+50];
 
 	SendDlgItemMessage(m_hDlg, IDC_LIST1, LB_RESETCONTENT, 0L, 0L);
 
 	for(int n = 0;n < m_numChapter;n++) {
-		t = (LONGLONG)m_Frame[n] * 10000000 * m_scale / m_rate;
-		h = t / 36000000000;
-		m = (t - h * 36000000000) / 600000000;
-		s = (t - h * 36000000000 - m * 600000000) / 10000000.0;
-		sprintf_s(str,STRLEN,"%02d %06d [%02d:%02d:%06.3f] %s\n",n + 1,m_Frame[n],(int)h,(int)m,s,m_strTitle[n]);
+		std::string time_str = frame2time(m_Frame[n], m_rate, m_scale);
+		sprintf_s(str,STRLEN,"%02d %06d [%s] %s\n",n + 1,m_Frame[n],time_str.c_str(),m_strTitle[n]);
 		SendDlgItemMessage(m_hDlg,IDC_LIST1,LB_ADDSTRING,0L,(LPARAM)str);
 	}
 
@@ -313,7 +306,7 @@ void CfgDlg::AddHis() {
 	if(m_numHis > NUMHIS) m_numHis = NUMHIS;
 
 	//コンボボックスの表示更新
-	while(SendDlgItemMessage(m_hDlg,IDC_EDNAME,CB_GETCOUNT,0,0)) {SendDlgItemMessage(m_hDlg,IDC_EDNAME,CB_DELETESTRING,0,0);}
+	SendDlgItemMessage(m_hDlg,IDC_EDNAME,CB_RESETCONTENT,0,0);
 	for(int n = 0;n < m_numHis;n++) {
 		SendDlgItemMessage(m_hDlg,IDC_EDNAME,CB_ADDSTRING,0L,(LPARAM)m_strHis[n]);
 	}
@@ -533,27 +526,6 @@ void shift_to_eight_bit_sse( PIXEL_YC* ycp, unsigned char* luma, int w, int max_
 int mvec(unsigned char* current_pix,unsigned char* bef_pix,int lx,int ly,int threshold,int pict_struct);
 //ここまで
 
-//[ru]輝度の平均だけで判定してみるテスト
-int ave_y(PIXEL_YC *pyc, int w, int h) {
-	unsigned int ave = 0;
-	int skip_w = w % 4;
-	w >>= 2;
-	for (int i=0; i<h; i++) {
-		unsigned int s = 0;
-		for (int j=0; j<w; j++) {
-			s += (pyc+0)->y;
-			s += (pyc+1)->y;
-			s += (pyc+2)->y;
-			s += (pyc+3)->y;
-			pyc += 4;
-		}
-		ave += s >> 5;
-		pyc += skip_w;
-	}
-	return ave;
-}
-//ここまで
-
 //[ru] ジャンプウィンドウ更新
 BOOL CALLBACK searchJump(HWND hWnd, LPARAM lParam) {
 	TCHAR buf[1024];
@@ -663,7 +635,6 @@ int CfgDlg::GetSCPos(int moveto, int frames)
 	int max_motion = -1;
 	int max_motion_frame = 0;
 
-#if 1
 	// 動きベクトルが最大値のフレームを検出
 	unsigned char* pix1 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした現フレームの輝度が代入される
 	unsigned char* pix0 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした前フレームの輝度が代入される
@@ -709,76 +680,6 @@ int CfgDlg::GetSCPos(int moveto, int frames)
 	//OutputDebugString(str);
 #endif
 
-#else
-#if 1
-	// 動きベクトルが最大値のフレームを検出
-	unsigned char* pix1 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした現フレームの輝度が代入される
-	unsigned char* pix0 = (unsigned char*)_aligned_malloc(w*h, 32);	//8ビットにシフトした前フレームの輝度が代入される
-
-	//計測タイマ
-	QPC totalQPC;
-	QPC sourceQPC;
-	QPC eightQPC;
-	QPC mvecQPC;
-
-	totalQPC.start();
-
-	sourceQPC.start();
-	PIXEL_YC *yc0 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, max(moveto-1, 0), 0);
-	sourceQPC.stop();
-	eightQPC.start();
-	shift_to_eight_bit_sse(yc0, pix0, w, fi.w, h);
-	eightQPC.stop();
-	for (int i=0; i<min(frames+5,200); i++) {
-		sourceQPC.start();
-		PIXEL_YC *yc1 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, moveto+i, 0);
-		sourceQPC.stop();
-		eightQPC.start();
-		shift_to_eight_bit_sse(yc1, pix1, w, fi.w, h);
-		eightQPC.stop();
-		mvecQPC.start();
-		int movtion_vector = mvec( pix1, pix0, w, h, (100-0)*(100/FIELD_PICTURE), FIELD_PICTURE);
-		mvecQPC.stop();
-		yc0 = yc1;
-		if (movtion_vector > max_motion) {
-			max_motion = movtion_vector;
-			max_motion_frame = i;
-		}
-		unsigned char *tmp = pix0;
-		pix0 = pix1;
-		pix1 = tmp;
-		//memcpy(pix0, pix1, w*h);
-	}
-	_aligned_free(pix1);
-	_aligned_free(pix0);
-
-	totalQPC.stop();
-#ifdef CHECKSPEED
-	sprintf_s(str, "total: %.03f, read: %.03f, shift: %.03f, mvec: %.03f", totalQPC.get(), sourceQPC.get(), eightQPC.get(), mvecQPC.get());
-	MessageBox(NULL, str, NULL, 0);
-#endif
-#else
-	// 輝度の変化が最大のフレームを検出
-	PIXEL_YC *yc0 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, max(moveto-1, 0), 0);
-	int before_ave = yc0 != NULL ? ave_y(yc0, fi.w, fi.h) : 0;
-	for (int i=0; i<min(frames+5,200); i++) {
-		PIXEL_YC *yc1 = (PIXEL_YC*)m_exfunc->get_ycp_source_cache(m_editp, moveto+i, 0);
-		if (yc1 == NULL)
-			continue;
-		int now_ave = ave_y(yc1, fi.w, fi.h);
-		int movtion_vector = abs(now_ave - before_ave);
-		before_ave = now_ave;
-
-		if (movtion_vector > max_motion) {
-			max_motion = movtion_vector;
-			max_motion_frame = i;
-		}
-	}
-#endif
-#endif
-	//sprintf_s(str, 500, "%.03f", (double)( clock() - t ) / CLOCKS_PER_SEC);
-	//MessageBox(NULL, str, NULL, 0);
-
 	return max_motion_frame;
 }
 
@@ -801,7 +702,7 @@ void CfgDlg::Seek() {
 	}
 	m_exfunc->set_frame(m_editp, moveto);
 	SetDlgItemText(m_hDlg,IDC_EDNAME,m_strTitle[sel]);
-	EnumWindows((WNDENUMPROC)searchJump, (LPARAM)m_exfunc->get_frame_n(m_editp));
+	EnumWindows(searchJump, (LPARAM)m_exfunc->get_frame_n(m_editp));
 }
 
 void CfgDlg::SetFrameN(void *editp,int frame_n) {
@@ -813,29 +714,21 @@ void CfgDlg::SetFrameN(void *editp,int frame_n) {
 }
 
 void CfgDlg::SetFrame(int frame) {
-	LONGLONG t,h,m;
-	double s;
-
-	t = (LONGLONG)frame * 10000000 * m_scale / m_rate;
-	h = t / 36000000000;
-	m = (t - h * 36000000000) / 600000000;
-	s = (t - h * 36000000000 - m * 600000000) / 10000000.0;
-	sprintf_s(m_strTime,STRLEN,"%02d:%02d:%06.3f / %06d frame", (int)h, (int)m, s, frame);
-	SetDlgItemText(m_hDlg,IDC_EDTIME,m_strTime);
+	std::string time_str = frame2time(frame, m_rate, m_scale);
+	sprintf_s(m_strTime, "%s / %06d frame", time_str.c_str(), frame);
+	SetDlgItemText(m_hDlg, IDC_EDTIME, m_strTime);
 	m_frame = frame;
 }
 
 void CfgDlg::Save() {
-	LONGLONG t,h,m;
-	double s;
-	char str[STRLEN],path[_MAX_PATH];
-	FILE *file;
+	if(!m_numChapter) {
+		return;
+	}
+
+	char path[_MAX_PATH];
 	OPENFILENAME of;
-
-	if(m_numChapter == 0) return;
-
-	ZeroMemory(&of,sizeof(OPENFILENAME));
-	ZeroMemory(path,sizeof(path));
+	ZeroMemory(&of, sizeof(OPENFILENAME));
+	ZeroMemory(path, sizeof(path));
 		
 	of.lStructSize = sizeof(OPENFILENAME);
 	of.hwndOwner = m_hDlg;
@@ -847,67 +740,53 @@ void CfgDlg::Save() {
 	of.nMaxFileTitle = 0;
 	of.lpstrInitialDir = NULL;
 	of.Flags = OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
-	if(GetSaveFileName(&of) == 0) return;
-
-	bool ext = false;	// 拡張子が無い場合は付ける
-	for(int n = 0;n < sizeof(path);n++) {
-		if(path[n] == '\\' && !my_sjis(path,n-1)) ext = false;
-		if(path[n] == '.' && !my_sjis(path,n-1)) ext = true;
-		if(path[n] == 0) break;
-	}
-	if(ext == false) strcat_s(path,sizeof(path),".txt");
-
-	if(fopen_s(&file,path,"r") == 0) {
-		fclose(file);
-		if(MessageBox(NULL,"ファイルを上書きしますか？","チャプター編集",MB_YESNO|MB_ICONINFORMATION)
-			== IDCANCEL) return;
-	}
-
-	if(fopen_s(&file,path,"w")) {
-		MessageBox(NULL,"ファイルを書き込めませんでした。","チャプター編集",MB_OK|MB_ICONINFORMATION);
+	if (GetSaveFileName(&of) == 0) {
 		return;
+	} 
+
+	if (*PathFindExtension(path) == '\0') {
+		strcat_s(path, ".txt");
 	}
 
-	for(int n = 0;n < m_numChapter;n++) {
-		t = (LONGLONG)m_Frame[n] * 10000000 * m_scale / m_rate;
-		h = t / 36000000000;
-		m = (t - h * 36000000000) / 600000000;
-		s = (t - h * 36000000000 - m * 600000000) / 10000000.0;
-		sprintf_s(str,STRLEN,"CHAPTER%02d=%02d:%02d:%06.3f\n",n + 1,(int)h,(int)m,s);
-		fputs(str,file);
-		sprintf_s(str,STRLEN,"CHAPTER%02dNAME=%s\n",n + 1,m_strTitle[n]);
-		fputs(str,file);
+	if (PathFileExists(path)) {
+		BOOL ret = MessageBox(m_hDlg, "ファイルを上書きしますか？", "チャプター編集", MB_YESNO|MB_ICONINFORMATION);
+		if(ret == IDCANCEL) {
+			return;
+		}
 	}
-	fclose(file);
+
+	SaveToFile(path);
 }
 
 void CfgDlg::AutoSave() {
-	LONGLONG t,h,m;
-	double s;
-	char str[STRLEN],path[_MAX_PATH];
-	FILE *file;
-
-	if(m_numChapter == 0 || m_autosave == 0) return;
-
-	my_getexepath(path,sizeof(path));
-	strcat_s(path,sizeof(path),"chapter.txt");
-
-	if(fopen_s(&file,path,"w")) {
-		MessageBox(NULL,"自動出力ファイルを書き込めませんでした。","チャプター編集",MB_OK|MB_ICONINFORMATION);
+	if (!m_numChapter || !m_autosave) {
 		return;
 	}
 
+	char path[_MAX_PATH];
+	my_getexepath(path, sizeof(path));
+	strcat_s(path, sizeof(path), "chapter.txt");
+
+	SaveToFile(path);
+}
+
+bool CfgDlg::SaveToFile(const char *lpFile) {
+	char str[STRLEN+100];
+	FILE *file;
+	if (fopen_s(&file, lpFile, "w")) {
+		MessageBox(m_hDlg, "出力ファイルを開けませんでした。", "チャプター編集", MB_OK|MB_ICONINFORMATION);
+		return false;
+	}
+
 	for(int n = 0;n < m_numChapter;n++) {
-		t = (LONGLONG)m_Frame[n] * 10000000 * m_scale / m_rate;
-		h = t / 36000000000;
-		m = (t - h * 36000000000) / 600000000;
-		s = (t - h * 36000000000 - m * 600000000) / 10000000.0;
-		sprintf_s(str,STRLEN,"CHAPTER%02d=%02d:%02d:%06.3f\n",n + 1,(int)h,(int)m,s);
-		fputs(str,file);
-		sprintf_s(str,STRLEN,"CHAPTER%02dNAME=%s\n",n + 1,m_strTitle[n]);
-		fputs(str,file);
+		std::string time_str = frame2time(m_Frame[n], m_rate, m_scale);
+		sprintf_s(str, "CHAPTER%02d=%s\n", n + 1, time_str.c_str());
+		fputs(str, file);
+		sprintf_s(str, "CHAPTER%02dNAME=%s\n", n + 1, m_strTitle[n]);
+		fputs(str, file);
 	}
 	fclose(file);
+	return true;
 }
 
 void CfgDlg::Load() {
@@ -938,16 +817,15 @@ void CfgDlg::Load() {
 void CfgDlg::LoadFromFile(char *filename) {
 	FILE *file;
 	char str[STRLEN+2];
-	LONGLONG t;
-	int h,m,s;
+	int h,m,s,ms;
 	int frame;
 	if(fopen_s(&file,filename,"r")) {
 		MessageBox(NULL,"ファイルを開けませんでした。","チャプター編集",MB_OK|MB_ICONINFORMATION);
 		return;
 	}
 
-	const std::tr1::basic_regex<TCHAR> re1(_T("^CHAPTER(\\d\\d\\d?)=(\\d\\d):(\\d\\d):(\\d\\d)\\.(\\d\\d\\d)"));
-	const std::tr1::basic_regex<TCHAR> re2(_T("^CHAPTER(\\d\\d\\d?)NAME=(.*)$"));
+	const std::tr1::basic_regex<TCHAR> re1("^CHAPTER(\\d\\d\\d?)=(\\d\\d):(\\d\\d):(\\d\\d)\\.(\\d\\d\\d)");
+	const std::tr1::basic_regex<TCHAR> re2("^CHAPTER(\\d\\d\\d?)NAME=(.*)$");
 
 	m_numChapter = 0;
 
@@ -964,12 +842,9 @@ void CfgDlg::LoadFromFile(char *filename) {
 		}
 		h = atoi(results.str(2).c_str());
 		m = atoi(results.str(3).c_str());
-		s = atoi(results.str(4).c_str()) * 1000 + atoi(results.str(5).c_str());
-		t = (LONGLONG)h * 36000000000 + (LONGLONG)m * 600000000 + (LONGLONG)s * 10000;
-
-		// 近い整数に丸まるように少し足す
-		frame = (int)((t * m_rate + m_scale * 10000000 / 10) / m_scale / 10000000);
-		if(frame < 0) frame = 0;
+		s = atoi(results.str(4).c_str());
+		ms = atoi(results.str(5).c_str());
+		frame = time2frame(h, m, s, ms, m_rate, m_scale);
 
 		// 名前の処理
 		if(fgets(str,STRLEN,file) == NULL) break;
@@ -1148,13 +1023,6 @@ void CfgDlg::DetectMute() {
 
 	int n = m_exfunc->get_frame_n(m_editp);
 
-	/*
-	sprintf_s(str, STRLEN, "音量(%d/%d)以下の部分が %d フレーム以上連続している部分を探します。\n現在のチャプター情報は全て削除されます！", mute, 1 << 15, seri);
-	if (MessageBox(m_hDlg, str, "無音検索", MB_OKCANCEL) != IDOK) {
-		return ;
-	}
-	*/
-
 	// チャプター個数
 	int pos = 0;
 
@@ -1206,8 +1074,6 @@ void CfgDlg::DetectMute() {
 				naudio *= fip.audio_ch;
 				int j = cfaw.findFAW(buf, naudio);
 				if (j != -1) {
-					//byte *buffer = (byte*)(&buf[j+4]);
-					//naudio = CMute::decodeFAW(buffer, 2*(naudio - j - 4), buf);
 					naudio = cfaw.decodeFAW(buf + j, naudio - j, buf);
 				}
 			}
@@ -1231,8 +1097,6 @@ void CfgDlg::DetectMute() {
 			bool isDecoded = false;
 			int j = cfaw.findFAW(buf, naudio);
 			if (j != -1) {
-				//byte *buffer = (byte*)(&buf[j+4]);
-				//naudio = CMute::decodeFAW(buffer, 2*(naudio - j - 4), buf);
 				naudio = cfaw.decodeFAW(buf+j, naudio-j, buf);
 				isDecoded = naudio != 0;
 
