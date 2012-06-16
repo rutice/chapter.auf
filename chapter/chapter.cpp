@@ -11,15 +11,17 @@
 #pragma comment(lib, "Shlwapi.lib")
 #pragma comment(lib, "imm32.lib")
 
-const int MIN_WIDTH = 550;
-const int MIN_HEIGHT = 435;
+const int DEFAULT_WIDTH = 550;
+const int DEFAULT_HEIGHT = 435;
+const int MIN_WIDTH = 350;
+const int MIN_HEIGHT = 225;
 
 //---------------------------------------------------------------------
 //		フィルタ構造体定義
 //---------------------------------------------------------------------
 FILTER_DLL filter = {
 	FILTER_FLAG_ALWAYS_ACTIVE|FILTER_FLAG_MAIN_MESSAGE|FILTER_FLAG_WINDOW_THICKFRAME|FILTER_FLAG_WINDOW_SIZE|FILTER_FLAG_DISP_FILTER|FILTER_FLAG_EX_INFORMATION,	// int flag
-	MIN_WIDTH, MIN_HEIGHT,	// int x,y
+	DEFAULT_WIDTH, DEFAULT_HEIGHT,	// int x,y
 	"チャプター編集",	// TCHAR *name
 	NULL,NULL,NULL,	// int track_n, TCHAR **track_name, int *track_default
 	NULL,NULL,	// int *track_s, *track_e

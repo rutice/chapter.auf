@@ -208,6 +208,7 @@ void CfgDlg::Resize() {
 	GetWindowRect(GetDlgItem(m_hDlg, IDC_LIST1), &rc);
 	bottom = rc.bottom - rc.top;
 
+	// 右側
 	int rightItems[] = {
 		IDC_BUSAVE,
 		IDC_BULOAD,
@@ -232,6 +233,7 @@ void CfgDlg::Resize() {
 		MoveWindow(hItem, rc.left + left - oldLeft, rc.top, rc.right - rc.left, rc.bottom  - rc.top, TRUE);
 	}
 
+	// 下側
 	int bottomItems[] = {
 		IDC_EDTIME,
 		IDC_EDNAME,
@@ -248,6 +250,12 @@ void CfgDlg::Resize() {
 		MapWindowPoints(NULL, m_hDlg, (LPPOINT)&rc, 2);
 		MoveWindow(hItem, rc.left, rc.top + bottom - oldTop, rc.right - rc.left, rc.bottom  - rc.top, TRUE);
 	}
+
+	// 下側の横幅
+	HWND hItem = GetDlgItem(m_hDlg, IDC_EDNAME);
+	GetWindowRect(hItem, &rc);
+	MapWindowPoints(NULL, m_hDlg, (LPPOINT)&rc, 2);
+	MoveWindow(hItem, rc.left, rc.top, left - rc.left, rc.bottom - rc.top, TRUE);
 }
 
 void CfgDlg::AutoSaveCheck() {
