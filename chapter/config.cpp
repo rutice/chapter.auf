@@ -1037,8 +1037,24 @@ void CfgDlg::DetectMute() {
 
 	int start_fr = 0;	// 無音の開始フレーム
 	int mute_fr = 0;	// 無音フレーム数
-	bool isFAW = true;	// FAW使用かどうか（最初のフレームで検出）
+	bool isFAW = false;	// FAW使用かどうか（最初の200フレームで検出）
 	CFAW cfaw;
+
+	// FAWチェック
+	int fawCount = 0;
+	for (int i=0; i<min(200, n); ++i) {
+		int naudio = m_exfunc->get_audio_filtered(m_editp, i, buf);
+		if (naudio) {
+			naudio *= fip.audio_ch;
+			int j = cfaw.findFAW(buf, naudio);
+			if (j != -1) {
+				fawCount++;
+			}
+		}
+	}
+	if (fawCount > 10) {
+		isFAW = true;
+	}
 
 	// フレームごとに音声を解析
 	int skip = 0;
@@ -1071,7 +1087,7 @@ void CfgDlg::DetectMute() {
 
 		// 先フレームを読んで音があれば飛ばす
 		if (i && mute_fr == 0 ) {
-			int naudio = m_exfunc->get_audio(m_editp, i + seri - 1, buf);
+			int naudio = m_exfunc->get_audio_filtered(m_editp, i + seri - 1, buf);
 			if (naudio && isFAW) {
 				naudio *= fip.audio_ch;
 				int j = cfaw.findFAW(buf, naudio);
@@ -1087,7 +1103,7 @@ void CfgDlg::DetectMute() {
 			}
 		}
 		
-		int naudio = m_exfunc->get_audio(m_editp, i, buf);
+		int naudio = m_exfunc->get_audio_filtered(m_editp, i, buf);
 		if (naudio == 0)
 			continue;
 
@@ -1096,23 +1112,14 @@ void CfgDlg::DetectMute() {
 
 		// FAWをデコード
 		if (isFAW) {
-			bool isDecoded = false;
 			int j = cfaw.findFAW(buf, naudio);
 			if (j != -1) {
 				naudio = cfaw.decodeFAW(buf+j, naudio-j, buf);
-				isDecoded = naudio != 0;
 
 				if (cfaw.isLoadFailed()) {
 					MessageBox(this->m_fp->hwnd, "FAWをデコードするのに 11/02/06以降のFAWPreview.auf（FAWぷれびゅ～） が必要です。", "エラー", MB_OK);
 					return ;
 				}
-			}
-			if (isDecoded == false) {
-				// 最初のフレームでAAC部分が無ければFAWモードを抜ける
-				if (i == 0)
-					isFAW = false;
-				else
-					continue;
 			}
 		}
 
