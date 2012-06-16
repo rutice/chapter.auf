@@ -158,10 +158,12 @@ void CfgDlg::Init(HWND hwnd,void *editp,FILTER *fp) {
 	}
 
 	// コンボボックスに履歴追加
-	for(int n = 0;n < NUMHIS;n++) {
-		sprintf_s(str,STRLEN,"history%d",n);
-		m_exfunc->ini_load_str(fp,str,m_strHis[n],NULL);
-		if(m_strHis[n][0] != NULL) m_numHis++;
+	for (int n=0; n<NUMHIS; n++) {
+		sprintf_s(str, "history%d", n);
+		m_exfunc->ini_load_str(fp, str, m_strHis[n], NULL);
+		if (m_strHis[n][0] != NULL) {
+			m_numHis++;
+		}
 	}
 	AddHis();
 
@@ -300,7 +302,7 @@ void CfgDlg::AddHis() {
 	//履歴に追加
 	if(str[0] != 0) {
 		for(int n = NUMHIS - 1 ;n > 0;n--) memcpy(m_strHis[n],m_strHis[n-1],STRLEN);
-		strcpy_s(m_strHis[0],STRLEN,str);
+		strcpy_s(m_strHis[0], str);
 		m_numHis++;
 	}
 	if(m_numHis > NUMHIS) m_numHis = NUMHIS;
@@ -313,8 +315,8 @@ void CfgDlg::AddHis() {
 
 	//iniに履歴を保存
 	for(int n = 0;n < NUMHIS;n++) {
-		sprintf_s(str,STRLEN,"history%d",n);
-		m_exfunc->ini_save_str(m_fp,str,m_strHis[n]);
+		sprintf_s(str, "history%d", n);
+		m_exfunc->ini_save_str(m_fp, str, m_strHis[n]);
 	}
 }
 

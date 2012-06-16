@@ -10,7 +10,7 @@
 #ifndef _CHAPTER_CONFIG_H_
 #define _CHAPTER_CONFIG_H_
 
-const int NUMHIS = 30;	// 保存する履歴の数
+const int NUMHIS = 50;	// 保存する履歴の数
 const int STRLEN = 256;	// 文字列の最大長
 
 const int MAXCHAPTER = 500;
