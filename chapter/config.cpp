@@ -379,9 +379,7 @@ void CfgDlg::DelList() {
 		strcpy_s(m_strTitle[n],STRLEN,m_strTitle[n+1]);
 		m_SCPos[n] = m_SCPos[n+1];
 	}
-	if (m_numChapter) {
-		ShowList(min(sel, m_numChapter - 1));
-	}
+	ShowList(min(sel, m_numChapter - 1));
 }
 
 void CfgDlg::NextList() {
