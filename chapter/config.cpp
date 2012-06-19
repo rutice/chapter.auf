@@ -758,7 +758,7 @@ void CfgDlg::Save() {
 
 	if (PathFileExists(path)) {
 		BOOL ret = MessageBox(m_hDlg, "ファイルを上書きしますか？", "チャプター編集", MB_YESNO|MB_ICONINFORMATION);
-		if(ret == IDCANCEL) {
+		if(ret != IDYES) {
 			return;
 		}
 	}
